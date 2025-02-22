@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant IA</title>
+    <style>
+        /* Style du widget */
+        #ai-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            opacity: 0.3; /* Opacité pour le débogage */
+            background-color: rgba(0, 0, 0, 0.5); /* Fond pour le débogage */
+            pointer-events: none; /* Désactive les interactions */
+            z-index: 999; /* S'assure qu'il est au-dessus du bouton */
+        }
+
+        /* Style du bouton */
+        #widgetCallButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000; /* Au-dessus du widget */
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+            background-color: #007bff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Style du bouton en mode "Raccrocher" */
+        #widgetCallButton.hangup {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Widget ElevenLabs -->
+    <elevenlabs-convai id="ai-widget" agent-id="Nwzu75oxtg6FYOv8xdLS"></elevenlabs-convai>
+    <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
+
+    <!-- Bouton pour interagir avec le widget -->
+    <button id="widgetCallButton">Appeler l'IA</button>
+
+    <script>
+        // Gestion des interactions avec le widget
+        document.addEventListener("DOMContentLoaded", () => {
+            const widget = document.getElementById("ai-widget");
+            const callButton = document.getElementById("widgetCallButton");
+            let isCallActive = false;
+
+            callButton.addEventListener("click", () => {
+                isCallActive = !isCallActive;
+
+                if (isCallActive) {
+                    // Activer le widget
+                    widget.setAttribute("variant", "expanded");
+                    callButton.textContent = "Raccrocher";
+                    callButton.classList.add("hangup");
+                } else {
+                    // Désactiver le widget
+                    widget.setAttribute("variant", "compact");
+                    callButton.textContent = "Appeler l'IA";
+                    callButton.classList.remove("hangup");
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

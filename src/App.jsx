@@ -15,7 +15,7 @@ function App() {
           {assistants.map((assistant, index) => (
             <div className="assistant-item" key={assistant.id}>
               <h2>{assistant.name}</h2>
-              <AssistantWidget agentId={assistant.id} index={index} />
+              <AssistantWidget agentId={assistant.id} index={index} name={assistant.name} />
             </div>
           ))}
         </div>

@@ -48,59 +48,6 @@
   font-size: 1.2em; /* Réduction de la taille du texte */
 }
 
-/* Conteneur du widget pour éviter le placement automatique en bas à droite */
-.widget-container {
-  width: 250px;  /* Réduction de la largeur du widget */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Style pour cacher le widget d'origine de "Exemple" */
-.hidden-widget {
-  display: none !important;
-}
-
-/* Style pour le bouton personnalisé */
-.custom-widget {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  background: #e3e3e3;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.custom-widget button {
-  padding: 10px 15px;
-  font-size: 1em;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  background: #007bff;
-  color: white;
-}
-
-.custom-widget button:hover {
-  background: #0056b3;
-}
-
-.custom-widget .hangup {
-  background: #dc3545;
-}
-
-.custom-widget .hangup:hover {
-  background: #a71d2a;
-}
-
-/* Hauteur spécifique pour chaque assistant (gérée dynamiquement) */
-.elevenlabs-convai {
-  width: 100%;
-}
-
 /* Logo général */
 .logo {
   height: 50px;
