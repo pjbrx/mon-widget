@@ -17,6 +17,7 @@
                 transform: scale(1);
             }
         }
+
         /* Conteneur du popup */
         .popup-container {
             position: fixed;
@@ -35,6 +36,7 @@
             border: 1px solid #ddd;
             animation: fadeIn 0.5s ease-in-out;
         }
+
         /* Pointe de la bulle */
         .popup-container::after {
             content: "";
@@ -66,7 +68,7 @@
         /* Texte "Questions ..." en gras */
         .popup-text {
             font-weight: bold;
-            font-size: 12px; /* Taille de police réduite */
+            font-size: 18px; /* Taille de police réduite */
             margin-bottom: 4px; /* Espacement réduit */
         }
 
@@ -123,7 +125,7 @@
             width: 300px;
             height: 150px;
             pointer-events: none; /* Rendre le widget traversable */
-            z-index: 998; /* Sous le bouton */
+            z-index: 1001; /* Sous le bouton */
             animation: pulse 2s infinite;
         }
 
@@ -161,14 +163,14 @@
             height: 300px;
             opacity: 1; /* Debug */
             background-color: rgba(0, 0, 0, 0); /* Debug */
-            pointer-events: none; /* Désactive les interactions */
+            pointer-events: auto; /* Activer les interactions */
             z-index: 1; /* Doit être au-dessus du SVG */
         }
 
         /* Style pour l'image ronde */
         .widget-image {
             position: absolute;
-            top: 50px; /* Ajustez cette valeur pour positionner l'image */
+            top: 55px; /* Ajustez cette valeur pour positionner l'image */
             left: 17%;
             transform: translateX(-50%);
             width: 35px; /* Taille de l'image */
@@ -183,7 +185,7 @@
         .widget-image-link {
             position: absolute;
             top: 0px; /* Ajustez cette valeur pour positionner l'image */
-            left: 17%;
+            left: 14%;
             transform: translateX(-50%);
             z-index: 999; /* Assure que l'image est au-dessus du SVG */
             pointer-events: auto;
@@ -200,25 +202,25 @@
         <svg class="widget-shape" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
             <!-- Forme du widget avec un trou réellement traversable -->
             <path d="
-                M 42,38
-                L 218,38
-                A 35 33 0 0 1 218,103
-                L 42,103
-                A 35 33 0 0 1 42,38
+                M 32,43
+                L 208,43
+                A 35 33 0 0 1 208,108
+                L 32,108
+                A 35 33 0 0 1 32,43
                 Z
-
-                M 95,53
-                L 200,53
-                A 15 15 0 0 1 200,88
-                L 95,88
-                A 15 15 0 0 1 95,53
+                
+                M 85,58
+                L 190,58
+                A 15 15 0 0 1 190,93
+                L 85,93
+                A 15 15 0 0 1 85,58
                 Z
-            " fill="rgb(252, 180, 35)" stroke="white" stroke-width="3" fill-rule="evenodd"/>
+            " fill="rgb(0, 128, 255)" stroke="white" stroke-width="3" fill-rule="evenodd"/>
         </svg>
     </div>
 
     <!-- Widget ElevenLabs -->
-    <elevenlabs-convai id="ai-widget" agent-id="Nwzu75oxtg6FYOv8xdLS"></elevenlabs-convai>
+    <elevenlabs-convai agent-id="uY98U5YsfR4bGJgXlAKE"></elevenlabs-convai>
     <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
 
     <!-- Popup de message -->
