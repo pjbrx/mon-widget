@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant IA</title>
+    <style>
+        /* Animation de pulse */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.015);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        /* Conteneur du popup */
+        .popup-container {
+            position: fixed;
+            bottom: 120px; /* Position au-dessus du widget */
+            right: 20px;
+            background-color: white; /* Fond blanc */
+            color: black; /* Texte noir */
+            font-family: Arial, sans-serif;
+            font-size: 12px; /* Taille de police réduite */
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: none; /* Caché par défaut */
+            z-index: 1000;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 220px; /* Taille ajustée */
+            border: 1px solid #ddd;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        /* Pointe de la bulle */
+        .popup-container::after {
+            content: "";
+            position: absolute;
+            bottom: -10px; /* Position de la pointe */
+            right: 20px; /* Alignement de la pointe */
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid white; /* Couleur de la pointe */
+        }
+
+        /* Animation d'apparition */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Contenu du popup */
+        .popup-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; /* Alignement à gauche */
+            text-align: left; /* Texte aligné à gauche */
+        }
+
+        /* Texte "Questions ..." en gras */
+        .popup-text {
+            font-weight: bold;
+            font-size: 12px; /* Taille de police réduite */
+            margin-bottom: 4px; /* Espacement réduit */
+        }
+
+        /* Texte "Parlez avec notre assistant !" non gras */
+        .popup-text-normal {
+            font-weight: normal; /* Pas de gras */
+            font-size: 12px; /* Taille de police réduite */
+            margin-bottom: 8px; /* Espacement */
+        }
+
+        /* Ligne Cléa est en ligne */
+        .popup-header {
+            display: flex;
+            align-items: center;
+            align-self: flex-start; /* Alignement à gauche */
+        }
+
+        /* Point vert indiquant que Cléa est en ligne */
+        .online-dot {
+            width: 8px; /* Taille réduite */
+            height: 8px;
+            background-color: green;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        /* Texte "Cléa est en ligne" en bleu */
+        .popup-online-text {
+            color: #007bff; /* Bleu */
+            font-weight: bold;
+            font-size: 12px; /* Taille de police réduite */
+        }
+
+        /* Bouton de fermeture (croix X) */
+        .popup-close {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 14px; /* Taille de police réduite */
+            font-weight: bold;
+            cursor: pointer;
+            color: black;
+        }
+        .popup-close:hover {
+            color: red;
+        }
+
+        /* Conteneur principal du widget */
+        .widget-container {
+            position: fixed;
+            bottom: -12px;
+            right: -40px;
+            width: 300px;
+            height: 150px;
+            pointer-events: none; /* Rendre le widget traversable */
+            z-index: 998; /* Sous le bouton */
+            animation: pulse 2s infinite;
+        }
+
+        /* SVG - Widget avec trou rectangulaire */
+        .widget-shape {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Permettre les interactions uniquement sur la partie colorée du SVG */
+        .widget-shape path {
+            pointer-events: auto; /* Active les interactions sur la partie opaque */
+        }
+
+        /* Style pour le texte */
+        .widget-text {
+            position: fixed;
+            bottom: 104px; /* Position au-dessus du widget */
+            right: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.15); /* Fond semi-transparent */
+            padding: 8px 12px;
+            border-radius: 5px;
+            pointer-events: auto; /* Permettre les interactions avec le texte */
+        }
+
+        /* Widget ElevenLabs */
+        #ai-widget {
+            position: fixed;
+            bottom: -150px;
+            right: 20px;
+            width: 220px;
+            height: 300px;
+            opacity: 1; /* Debug */
+            background-color: rgba(0, 0, 0, 0); /* Debug */
+            pointer-events: none; /* Désactive les interactions */
+            z-index: 1; /* Doit être au-dessus du SVG */
+        }
+
+        /* Style pour l'image ronde */
+        .widget-image {
+            position: absolute;
+            top: 50px; /* Ajustez cette valeur pour positionner l'image */
+            left: 17%;
+            transform: translateX(-50%);
+            width: 35px; /* Taille de l'image */
+            height: 35px;
+            border-radius: 50%; /* Rend l'image ronde */
+            border: 3px solid white; /* Bordure autour de l'image */
+            object-fit: cover; /* Ajuste l'image pour couvrir le cercle */
+            z-index: 999; /* Assure que l'image est au-dessus du SVG */
+        }
+
+        /* Lien du logo */
+        .widget-image-link {
+            position: absolute;
+            top: 0px; /* Ajustez cette valeur pour positionner l'image */
+            left: 17%;
+            transform: translateX(-50%);
+            z-index: 999; /* Assure que l'image est au-dessus du SVG */
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Conteneur du widget avec SVG -->
+    <div class="widget-container">
+        <a href="https://mon-widget.vercel.app/" class="widget-image-link">
+            <img src="logo_cléa.jpg" alt="Logo Cléa" class="widget-image">
+        </a>
+        <svg class="widget-shape" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+            <!-- Forme du widget avec un trou réellement traversable -->
+            <path d="
+                M 42,38
+                L 218,38
+                A 35 33 0 0 1 218,103
+                L 42,103
+                A 35 33 0 0 1 42,38
+                Z
+
+                M 95,53
+                L 200,53
+                A 15 15 0 0 1 200,88
+                L 95,88
+                A 15 15 0 0 1 95,53
+                Z
+            " fill="rgb(252, 180, 35)" stroke="white" stroke-width="3" fill-rule="evenodd"/>
+        </svg>
+    </div>
+
+    <!-- Widget ElevenLabs -->
+    <elevenlabs-convai id="ai-widget" agent-id="Nwzu75oxtg6FYOv8xdLS"></elevenlabs-convai>
+    <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
+
+    <!-- Popup de message -->
+    <div id="popup-message" class="popup-container">
+        <div class="popup-content">
+            <span id="close-popup" class="popup-close">&times;</span>
+            <!-- Texte "Questions ..." en gras -->
+            <p class="popup-text">Questions ?</p>
+            <!-- Texte "Parlez avec notre assistant !" non gras -->
+            <p class="popup-text-normal">Parlez avec notre assistant IA !</p>
+            <!-- Ligne "Cléa est en ligne" en dessous -->
+            <div class="popup-header">
+                <span class="online-dot"></span>
+                <span class="popup-online-text">Cléa est en ligne</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Afficher le popup après 5 secondes
+        setTimeout(function() {
+            document.getElementById("popup-message").style.display = "block";
+        }, 5000); //5000 pour 5 sec
+
+        // Fermer le popup lorsque l'utilisateur clique sur la croix
+        document.getElementById("close-popup").addEventListener("click", function() {
+            document.getElementById("popup-message").style.display = "none";
+        });
+    </script>
+
+</body>
+</html>
