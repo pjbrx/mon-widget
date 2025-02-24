@@ -221,7 +221,6 @@
 
     <!-- Widget ElevenLabs -->
     <elevenlabs-convai agent-id="uY98U5YsfR4bGJgXlAKE"></elevenlabs-convai>
-    <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
 
     <!-- Popup de message -->
     <div id="popup-message" class="popup-container">
@@ -243,6 +242,13 @@
         // Afficher le popup après 5 secondes
         setTimeout(function() {
             document.getElementById("popup-message").style.display = "block";
+
+            // Charger dynamiquement le script ElevenLabs
+            const script = document.createElement('script');
+            script.src = 'https://elevenlabs.io/convai-widget/index.js';
+            script.async = true;
+            script.type = 'text/javascript';
+            document.body.appendChild(script);
         }, 5000); //5000 pour 5 secondes
 
         // Fermer le popup lorsque l'utilisateur clique sur la croix
