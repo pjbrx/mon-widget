@@ -205,13 +205,13 @@ document.head.appendChild(styleSheet);
 
 // Sélection aléatoire des avatars
 const utilisateurs = [
-    'utilisateur 1.jpeg', 'utilisateur 2.jpeg', 'utilisateur 3.jpeg', 'utilisateur 4.jpg', 'utilisateur 5.jpeg',
-    'utilisateur 10.jpeg', 'utilisateur 20.jpeg', 'utilisateur 30.jpeg', 'utilisateur 40.jpeg', 'utilisateur 50.png',
-    'utilisateur 11.jpeg', 'utilisateur 21.jpeg', 'utilisateur 31.jpeg', 'utilisateur 41.jpeg', 'utilisateur 51.png',
-    'utilisateur 12.jpeg', 'utilisateur 22.jpeg', 'utilisateur 32.jpeg', 'utilisateur 42.jpeg', 'utilisateur 6.jpeg',
-    'utilisateur 13.jpeg', 'utilisateur 23.jpeg', 'utilisateur 33.jpeg', 'utilisateur 43.jpeg', 'utilisateur 7.jpeg',
-    'utilisateur 14.jpeg', 'utilisateur 24.jpeg', 'utilisateur 34.jpeg', 'utilisateur 44.jpeg', 'utilisateur 8.jpeg',
-    'utilisateur 15.jpeg', 'utilisateur 25.jpeg', 'utilisateur 35.jpeg', 'utilisateur 45.jpeg', 'utilisateur 9.jpeg'
+    'utilisateur1.jpeg', 'utilisateur2.jpeg', 'utilisateur3.jpeg', 'utilisateur4.jpg', 'utilisateur5.jpeg',
+    'utilisateur10.jpeg', 'utilisateur20.jpeg', 'utilisateur30.jpeg', 'utilisateur40.jpeg', 'utilisateur50.png',
+    'utilisateur11.jpeg', 'utilisateur21.jpeg', 'utilisateur31.jpeg', 'utilisateur41.jpeg', 'utilisateur51.png',
+    'utilisateur12.jpeg', 'utilisateur22.jpeg', 'utilisateur32.jpeg', 'utilisateur42.jpeg', 'utilisateur6.jpeg',
+    'utilisateur13.jpeg', 'utilisateur23.jpeg', 'utilisateur33.jpeg', 'utilisateur43.jpeg', 'utilisateur7.jpeg',
+    'utilisateur14.jpeg', 'utilisateur24.jpeg', 'utilisateur34.jpeg', 'utilisateur44.jpeg', 'utilisateur8.jpeg',
+    'utilisateur15.jpeg', 'utilisateur25.jpeg', 'utilisateur35.jpeg', 'utilisateur45.jpeg', 'utilisateur9.jpeg'
 ];
 
 const shuffleArray = (array) => array.sort(() => 0.5 - Math.random());
