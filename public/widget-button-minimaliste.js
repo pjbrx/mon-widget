@@ -24,6 +24,7 @@ const styles = `
         0 0 12px rgba(0, 0, 0, 0.1), /* Couche 1 : ombre très proche et légère */
         0 0 36px rgba(0, 0, 0, 0.1), /* Couche 2 : ombre un peu plus large */
         0 0 72px rgba(0, 0, 0, 0.1); /* Couche 3 : ombre plus diffuse et douce */
+        height: 100px;
         width: 195px; /* Réduit la largeur du popup */
         border: none;
         animation: fadeIn 0.5s ease-in-out;
@@ -55,13 +56,16 @@ const styles = `
         flex-direction: column;
         align-items: flex-start;
         text-align: left;
+        padding-left: 10px;
     }
 
     /* Texte "Questions ..." en gras */
     .popup-text {
+        font-family: Arial, sans-serif;
         font-weight: bold;
-        font-size: 18px;
-        margin-bottom: 4px;
+        font-size: 22px;
+        margin-top: 0px;
+        margin-bottom: -5px;
     }
 
     /* Texte "Parlez avec notre assistant !" non gras */
@@ -92,17 +96,18 @@ const styles = `
 
     /* Texte "Cléa est en ligne" en bleu */
     .popup-online-text {
+        font-family: Arial, sans-serif;
         color: #007bff;
         font-weight: bold;
         font-size: 12px;
         cursor: pointer;
-        margin-right: 10px;
+        margin-right: 5px;
     }
     /* Conteneur des avatars */
     .avatar-container {
         display: flex;
         align-items: center;
-        margin-left: auto;
+        margin-left: -8px;
         margin-top: 5px;
     }
 
@@ -114,18 +119,18 @@ const styles = `
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         object-fit: cover;
         position: relative;
-        margin-left: -8px;
+        margin-left: -13px;
     }
     
     .avatar:first-child {
-        margin-left: 0;
+        margin-left: -60px;
     }
 
     /* Bouton de fermeture (croix X) */
     .popup-close {
         position: absolute;
-        top: 5px;
-        right: 10px;
+        top: -3px;
+        right: 0px;
         font-size: 14px;
         font-weight: bold;
         cursor: pointer;
@@ -265,9 +270,9 @@ const widgetHTML = `
         <div class="popup-content">
             <span id="close-popup" class="popup-close">&times;</span>
             <!-- Texte "Questions ..." en gras -->
-            <p class="popup-text">Une question?</p>
+            <p class="popup-text">Une Question ?</p>
             <!-- Texte "Parlez avec notre assistant !" non gras -->
-            <p class="popup-text-normal">Discutez avec notre assistant IA!</p>
+            <p class="popup-text-normal">Discutez avec notre assistant IA</p>
             <!-- Ligne "Cléa est en ligne" en dessous -->
             <div class="popup-header">
                 <div>
