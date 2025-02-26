@@ -215,7 +215,9 @@ const utilisateurs = [
 ];
 
 const shuffleArray = (array) => array.sort(() => 0.5 - Math.random());
+const BASE_URL = "https://pjbrx.github.io/mon-widget/public/utilisateurs/";
 const selectedAvatars = shuffleArray(utilisateurs).slice(0, 3);
+
 
 // Injecter le HTML dans le document
 const widgetHTML = `
@@ -273,9 +275,9 @@ const widgetHTML = `
                     <a href="https://mon-widget.vercel.app/" target="_blank" class="popup-online-text">Cléa est en ligne</a>
                 </div>
                         <!-- Avatars superposés -->
-                <div class="avatar-container">
-                ${selectedAvatars.map(img => `<img src="public/utilisateurs/${img}" class="avatar" alt="Utilisateur">`).join('')}
-                </div>
+                    <div class="avatar-container">
+                        ${selectedAvatars.map(img => `<img src="${BASE_URL}${img}" class="avatar" alt="Utilisateur">`).join('')}
+                    </div>
             </div>
         </div>
     </div>
