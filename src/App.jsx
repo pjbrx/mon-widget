@@ -7,7 +7,7 @@ function App() {
   return (
     <div className="container">
       <header>
-        <img src="/logo_cléa.jpg" alt="Logo Cléa" className="logo-clea" />
+        <img src="/logo_cléa.png" alt="Logo Cléa" className="logo-clea" />
         <h1>Assistants Vocaux Cléa</h1>
       </header>
       <main>
