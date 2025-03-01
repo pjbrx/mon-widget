@@ -228,7 +228,7 @@ const selectedAvatars = shuffleArray(utilisateurs).slice(0, 3);
 const widgetHTML = `
     <!-- Conteneur du widget avec SVG -->
     <div class="floating-widget-container">
-        <a href="https://mon-widget.vercel.app/" class="widget-image-link">
+        <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" class="widget-image-link">
             <img src="logo_cléa.jpg" alt="Logo Cléa" class="widget-image">
         </a>
         <svg class="widget-shape" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
@@ -257,7 +257,7 @@ const widgetHTML = `
             <text x="45%" y="110" font-family="Arial, sans-serif" font-size="10" fill="rgba(0, 0, 0, 0.6)" text-anchor="middle" pointer-events="auto">
                 Conçu avec soin par 
                 <tspan font-weight="bold" fill="#007bff" text-decoration="underline">
-                    <a href="https://mon-widget.vercel.app/" target="_blank" style="cursor: pointer; pointer-events: auto; text-decoration: underline; fill: #007bff;">
+                    <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" target="_blank" style="cursor: pointer; pointer-events: auto; text-decoration: underline; fill: #007bff;">
                         Cléa
                     </a>
                 </tspan>
@@ -277,7 +277,7 @@ const widgetHTML = `
             <div class="popup-header">
                 <div>
                     <span class="online-dot"></span>
-                    <a href="https://mon-widget.vercel.app/" target="_blank" class="popup-online-text">Cléa est en ligne</a>
+                    <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" target="_blank" class="popup-online-text">Cléa est en ligne</a>
                 </div>
                         <!-- Avatars superposés -->
                     <div class="avatar-container">
