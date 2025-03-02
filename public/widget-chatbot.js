@@ -171,8 +171,10 @@
 
         async function sendMessage() {
             const messageText = textarea.value.trim();
-            if (messageText === "") return;
-
+            if (!messageText) {
+                return;
+            }
+        
             const userMessage = document.createElement("div");
             userMessage.className = "message user";
             userMessage.textContent = messageText;
