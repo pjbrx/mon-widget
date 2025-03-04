@@ -89,12 +89,12 @@
             height: 35px;
             transition: opacity 0.3s ease;
             position: absolute;
-            bottom: 10px;
-            right: 0px;
+            bottom: 25px;
+            right: 10px;
         }
 
         .custom-popup-send:hover .send-icon {
-            opacity: 0.8;  /* Effet visuel au survol */
+            opacity: 0.5;  /* Effet visuel au survol */
         }
 
 
@@ -104,10 +104,65 @@
         }
 
         .custom-popup-header {
-            background:rgb(0, 0, 0);
-            color: white;
-            padding: 10px;
+            background: rgb(0, 0, 0, 0.34);
+            color:rgb(255, 255, 255);
+            padding: 25px 20px 25px; /* Augmente l’espace en haut ET en bas */
             text-align: center;
+            font-weight: bold;
+            height: 80px; /* Augmente la hauteur */
+            width: calc(100%);
+            margin-left: -20px;
+            margin-right: -20px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            position: relative;
+            top: -20px;
+        }
+
+
+        /* Styles pour les avatars */
+        .avatar-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+            margin-left: -8px; /* Superposition des avatars */
+        }
+
+        .avatar:first-child {
+            margin-left: 0; /* Pas de marge pour le premier avatar */
+        }
+
+        /* Styles pour la bulle verte "Cléa est en ligne" */
+        .online-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background-color: green;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .online-text {
+            color: #007bff;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 12px;
             font-weight: bold;
         }
 
@@ -118,21 +173,44 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 370px;
+            max-height: 300px;
         }
 
         .custom-popup-footer {
             position: absolute;
-            bottom: 6px;
-            left: 2px;
-            width: 90%;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             background: white;
-            padding: 8px;
+            padding: 12px;
             display: flex;
             align-items: center;
             gap: 10px;
             flex-direction: column;
+            border-bottom-left-radius: 10px; /* Coins arrondis */
+            border-bottom-right-radius: 10px;
+            box-sizing: border-box; /* Empêche le débordement en prenant en compte le padding */
         }
+
+
+
+        .clea-powered-text {
+            font-size: 10px; /* Petite taille */
+            font-weight: normal; /* Pas trop gras */
+            color: rgba(0, 0, 0, 0.3); /* Très discret */
+            position: absolute;
+            bottom: 0px; /* Bien aligné en bas */
+            right: 6px; /* Positionné à droite */
+            text-decoration: none; /* Supprime le soulignement */
+            transition: opacity 0.2s ease-in-out; /* Animation de l’effet de survol */
+        }
+
+        /* Effet au survol : Légèrement plus visible */
+        .clea-powered-text:hover {
+            opacity: 0.6;
+            color: rgba(0, 0, 0, 1); /* Devient un peu plus visible */
+        }
+
 
         .custom-popup-divider {
             width: 90%; /* Modifiable */
@@ -152,6 +230,14 @@
             resize: none;
             outline: none;
             overflow-y: auto; /* Active le scroll vertical quand la limite est atteinte */
+        }
+
+        .custom-popup-textarea::placeholder {
+            font-size: 14px; /* Même taille que le nom du bot */
+            font-weight: bold; /* Même épaisseur */
+            color: #333; /* Même couleur */
+            opacity: 0.45; /* Même opacité */
+            transition: opacity 0.3s ease-in-out;
         }
 
         .message {
@@ -182,6 +268,11 @@
             max-width: 80%;
             position: relative;
         }
+        
+        .custom-popup-body .message.bot-container:first-child {
+            margin-top: 15px; /* Ajuste selon le besoin */
+        }
+
 
         /* Style du logo Cléa */
         .bot-logo {
@@ -196,9 +287,9 @@
         .bot-name {
             font-size: 12px;
             font-weight: bold;
-            color: #333;
             margin-left: 60px; /* Alignement avec le logo */
             margin-bottom: -20px; /* Espacement entre le nom et la bulle */
+            opacity: 0.45;
         }
 
 
@@ -225,24 +316,78 @@
     styleSheet.innerText = styles;
     document.head.appendChild(styleSheet);
 
+    // Liste des avatars disponibles
+    const utilisateurs = [
+        'utilisateur1.jpeg', 'utilisateur2.jpeg', 'utilisateur3.jpeg', 'utilisateur4.jpg', 'utilisateur5.jpeg',
+        'utilisateur10.jpeg', 'utilisateur20.jpeg', 'utilisateur30.jpeg', 'utilisateur40.jpeg', 'utilisateur50.png',
+        'utilisateur11.jpeg', 'utilisateur21.jpeg', 'utilisateur31.jpeg', 'utilisateur41.jpeg', 'utilisateur51.png',
+        'utilisateur12.jpeg', 'utilisateur22.jpeg', 'utilisateur32.jpeg', 'utilisateur42.jpeg', 'utilisateur6.jpeg',
+        'utilisateur13.jpeg', 'utilisateur23.jpeg', 'utilisateur33.jpeg', 'utilisateur43.jpeg', 'utilisateur7.jpeg',
+        'utilisateur14.jpeg', 'utilisateur24.jpeg', 'utilisateur34.jpeg', 'utilisateur44.jpeg', 'utilisateur8.jpeg',
+        'utilisateur15.jpeg', 'utilisateur25.jpeg', 'utilisateur35.jpeg', 'utilisateur45.jpeg', 'utilisateur9.jpeg'
+    ];
+
+    // URL de base pour les avatars
+    const BASE_URL = "https://pjbrx.github.io/mon-widget/public/utilisateurs/";
+
+    // Fonction pour mélanger un tableau
+    const shuffleArray = (array) => array.sort(() => 0.5 - Math.random());
+
+    // Sélectionner 4 avatars aléatoires
+    const selectedAvatars = shuffleArray(utilisateurs).slice(0, 4);
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'custom-popup-container';
     
     widgetContainer.innerHTML = `
         <button id="custom-popup-toggle" class="custom-popup-button"><span>+</span></button>
         <div id="custom-popup-window" class="custom-popup-window">
-            <div class="custom-popup-header">Chat</div>
-            <div class="custom-popup-body" id="custom-popup-body">
-                <div class="message bot">Bonjour ! Comment puis-je vous aider ?</div>
+            <div class="custom-popup-header">
+                Des Questions ? Discutons !
+                <div class="avatar-container">
+                    ${selectedAvatars.map(img => `<img src="${BASE_URL}${img}" class="avatar" alt="Avatar">`).join('')}
+                </div>
+                <div class="online-status">
+                    <span class="online-dot"></span>
+                    <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" 
+                        class="online-text" 
+                        target="_blank" 
+                        rel="noopener noreferrer">Cléa est en ligne
+                    </a>
+
+                </div>
             </div>
+                <div class="custom-popup-body" id="custom-popup-body">
+                    <div style="height: -30px;"></div> <!-- Espace vide pour descendre le premier message -->
+                    
+                    <!-- Nom du bot -->
+                    <div class="bot-name">Cléa</div>
+                    
+                    <div class="message bot-container">
+                        <img src="/logo_cléa.png" alt="Logo Cléa" class="bot-logo">
+                        <div class="message bot">
+                            <span>Bonjour ! Comment puis-je vous aider ?</span>
+                        </div>
+                    </div>
+                </div>
+
+
+        <div class="custom-popup-footer">
+            <div class="custom-popup-divider"></div> <!-- Ligne de séparation -->
         <div class="custom-popup-footer">
             <div class="custom-popup-divider"></div> <!-- Ligne de séparation -->
             <div style="display: flex; width: 100%; align-items: center; gap: 10px;">
                 <textarea id="custom-popup-textarea" class="custom-popup-textarea" placeholder="Écrivez ici..."></textarea>
                 <button id="custom-popup-send" class="custom-popup-send" style="display: none;">
-                    <img src="/sendbutton.png" alt="Envoyer" class="send-icon">
+                    <img src="/send_button.png" alt="Envoyer" class="send-icon">
                 </button>
             </div>
+            <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" 
+            class="clea-powered-text" 
+            target="_blank" 
+            rel="noopener noreferrer">
+                Fonctionne avec Cléa
+            </a>
+
         </div>
 
 
