@@ -96,11 +96,12 @@ const styles = `
 
     /* Texte "Cléa est en ligne" en bleu */
     .popup-online-text {
-        font-family: Arial, sans-serif;
-        color: #007bff;
-        font-weight: bold;
-        font-size: 12px;
-        cursor: pointer;
+        all: unset;
+        font-family: Arial, sans-serif !important;
+        color: #007bff !important;
+        font-weight: bold !important;
+        font-size: 12px !important;
+        cursor: pointer !important;
         margin-right: 5px;
     }
     /* Conteneur des avatars */
@@ -112,8 +113,8 @@ const styles = `
     }
 
     .avatar {
-        width: 24px;
-        height: 24px;
+        width: 24px !important;
+        height: 24px !important;
         border-radius: 50%;
         border: 1px solid white;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -183,8 +184,8 @@ const styles = `
         top: 39.5px;
         left: 17%;
         transform: translateX(-50%);
-        width: 38px;
-        height: 38px;
+        width: 38px !important;
+        height: 38px !important;
         border-radius: 50%;
         border: 0.5px solid black;
         object-fit: cover;
