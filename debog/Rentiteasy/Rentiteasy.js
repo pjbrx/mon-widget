@@ -1,11 +1,11 @@
-// Créer un élément racine pour le Shadow DOM
+// 1) Créer le conteneur et l'ajouter au body
 const widgetContainer = document.createElement('div');
 document.body.appendChild(widgetContainer);
 
-// Attacher un Shadow DOM à cet élément
+// 2) Attacher le shadow root
 const shadowRoot = widgetContainer.attachShadow({ mode: 'open' });
 
-// Injecter le CSS dans le Shadow DOM
+// Injecter le CSS dans le document
 const styles = `
     /* Animation de pulse */
     @keyframes pulse {
@@ -210,11 +210,12 @@ const styles = `
     }
 `;
 
-// Injecter le CSS dans le Shadow DOM
+// Injecter le CSS dans le document
 const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = styles;
 shadowRoot.appendChild(styleSheet);
+
 
 // Sélection aléatoire des avatars
 const utilisateurs = [
@@ -232,7 +233,7 @@ const BASE_URL = "https://pjbrx.github.io/mon-widget/public/utilisateurs/";
 const selectedAvatars = shuffleArray(utilisateurs).slice(0, 3);
 
 
-// Injecter le HTML dans le Shadow DOM
+// Injecter le HTML dans le document
 const widgetHTML = `
     <!-- Conteneur du widget avec SVG -->
     <div class="floating-widget-container">
@@ -296,8 +297,14 @@ const widgetHTML = `
     </div>
 `;
 
-// Injecter le HTML dans le Shadow DOM
-shadowRoot.insertAdjacentHTML("beforeend", widgetHTML);
+// Injecter le HTML dans le body
+// ❌ Retirer cette ligne (ou commenter)
+// document.body.insertAdjacentHTML("beforeend", widgetHTML);
+
+// ✅ Ajouter :
+const widgetWrapper = document.createElement('div');
+widgetWrapper.innerHTML = widgetHTML;
+shadowRoot.appendChild(widgetWrapper);
 
 // Script pour gérer le popup
 setTimeout(function() {
@@ -310,11 +317,11 @@ shadowRoot.getElementById("close-popup").addEventListener("click", function() {
 
 // Widget ElevenLabs
 const elevenLabsWidget = document.createElement("elevenlabs-convai");
-elevenLabsWidget.setAttribute("agent-id", "vAVWpiIxaI6uJPpPzRy4");
-shadowRoot.appendChild(elevenLabsWidget);
+elevenLabsWidget.setAttribute("agent-id", "uY98U5YsfR4bGJgXlAKE");
+document.body.appendChild(elevenLabsWidget);
 
 const script = document.createElement("script");
 script.src = "https://elevenlabs.io/convai-widget/index.js";
 script.async = true;
 script.type = "text/javascript";
-shadowRoot.appendChild(script);
+document.body.appendChild(script);
