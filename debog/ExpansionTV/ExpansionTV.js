@@ -1,11 +1,4 @@
-// Créer un élément racine pour le Shadow DOM
-const widgetContainer = document.createElement('div');
-document.body.appendChild(widgetContainer);
-
-// Attacher un Shadow DOM à cet élément
-const shadowRoot = widgetContainer.attachShadow({ mode: 'open' });
-
-// Injecter le CSS dans le Shadow DOM
+// Injecter le CSS dans le document
 const styles = `
     /* Animation de pulse */
     @keyframes pulse {
@@ -103,12 +96,11 @@ const styles = `
 
     /* Texte "Cléa est en ligne" en bleu */
     .popup-online-text {
-        all: unset;
-        font-family: Arial, sans-serif !important;
-        color: #007bff !important;
-        font-weight: bold !important;
-        font-size: 12px !important;
-        cursor: pointer !important;
+        font-family: Arial, sans-serif;
+        color: #007bff;
+        font-weight: bold;
+        font-size: 12px;
+        cursor: pointer;
         margin-right: 5px;
     }
     /* Conteneur des avatars */
@@ -120,8 +112,8 @@ const styles = `
     }
 
     .avatar {
-        width: 24px !important;
-        height: 24px !important;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
         border: 1px solid white;
         box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -191,8 +183,8 @@ const styles = `
         top: 39.5px;
         left: 17%;
         transform: translateX(-50%);
-        width: 38px !important;
-        height: 38px !important;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         border: 0.5px solid black;
         object-fit: cover;
@@ -210,11 +202,11 @@ const styles = `
     }
 `;
 
-// Injecter le CSS dans le Shadow DOM
+// Injecter le CSS dans le document
 const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = styles;
-shadowRoot.appendChild(styleSheet);
+document.head.appendChild(styleSheet);
 
 // Sélection aléatoire des avatars
 const utilisateurs = [
@@ -232,7 +224,7 @@ const BASE_URL = "https://pjbrx.github.io/mon-widget/public/utilisateurs/";
 const selectedAvatars = shuffleArray(utilisateurs).slice(0, 3);
 
 
-// Injecter le HTML dans le Shadow DOM
+// Injecter le HTML dans le document
 const widgetHTML = `
     <!-- Conteneur du widget avec SVG -->
     <div class="floating-widget-container">
@@ -296,25 +288,25 @@ const widgetHTML = `
     </div>
 `;
 
-// Injecter le HTML dans le Shadow DOM
-shadowRoot.insertAdjacentHTML("beforeend", widgetHTML);
+// Injecter le HTML dans le body
+document.body.insertAdjacentHTML("beforeend", widgetHTML);
 
 // Script pour gérer le popup
 setTimeout(function() {
-    shadowRoot.getElementById("popup-message").style.display = "block";
+    document.getElementById("popup-message").style.display = "block";
 }, 5000); // Afficher le popup après 5 secondes
 
-shadowRoot.getElementById("close-popup").addEventListener("click", function() {
-    shadowRoot.getElementById("popup-message").style.display = "none";
+document.getElementById("close-popup").addEventListener("click", function() {
+    document.getElementById("popup-message").style.display = "none";
 });
 
 // Widget ElevenLabs
 const elevenLabsWidget = document.createElement("elevenlabs-convai");
-elevenLabsWidget.setAttribute("agent-id", "uY98U5YsfR4bGJgXlAKE");
-shadowRoot.appendChild(elevenLabsWidget);
+elevenLabsWidget.setAttribute("agent-id", "lrlluI50KDXyFTccRXwv");
+document.body.appendChild(elevenLabsWidget);
 
 const script = document.createElement("script");
 script.src = "https://elevenlabs.io/convai-widget/index.js";
 script.async = true;
 script.type = "text/javascript";
-shadowRoot.appendChild(script);
+document.body.appendChild(script);
