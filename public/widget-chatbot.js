@@ -485,8 +485,8 @@
             popup.style.display = popup.style.display === "block" ? "none" : "block";
             toggleButton.classList.toggle("red");
             toggleIcon.src = popup.style.display === "block"
-            ? "/public/logo_chat_support.png" // même logo ou autre version pour "fermé"
-            : "/public/logo_chat_support.png";
+            ? "/logo_chat_support.png" // même logo ou autre version pour "fermé"
+            : "/logo_chat_support.png";
             // Cacher le bouton d'envoi à l'ouverture du popup
             if (popup.style.display === "block") {
                 sendButton.style.display = "none";
