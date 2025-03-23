@@ -31,7 +31,7 @@
     const styles = `
         .custom-popup-container {
             position: fixed;
-            bottom: 20px;
+            bottom: 60px;
             right: 20px;
             z-index: 1005;
         }
@@ -55,20 +55,28 @@
             color: black
         }
 
+        .custom-popup-button-position {
+            position: fixed;
+            bottom: 41px;
+            right: 47px;
+            z-index: 1005;
+        }
+
+
         .custom-popup-window {
             position: fixed;
-            bottom: 80px;
+            bottom: 100px; /* Ajustement éventuel */
             right: 20px;
-            width: 320px;
-            height: 500px;
+            width: 380px;
+            height: 550px;
             background: white;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
-            display: none;
+            display: flex;              /* Passer en flex */
+            flex-direction: column;     /* Disposer verticalement */
             padding: 20px;
             z-index: 1006;
             animation: fadeIn 0.3s ease-in-out;
-            flex-direction: column;
         }
 
         .custom-popup-send {
@@ -81,7 +89,6 @@
             justify-content: center;
             width: 40px;
             height: 40px;
-
         }
 
         .custom-popup-send .send-icon {
@@ -89,7 +96,7 @@
             height: 35px;
             transition: opacity 0.3s ease;
             position: absolute;
-            bottom: 25px;
+            bottom: 7px;
             right: 10px;
         }
 
@@ -97,6 +104,36 @@
             opacity: 0.5;  /* Effet visuel au survol */
         }
 
+        /* Nouvelle classe pour l'animation de "Réflexion en cours" sans altérer la police */
+        .animated-reflection {
+        display: inline-block;
+        }
+        .animated-reflection span {
+        animation: blink 1.4s infinite both;
+        /* On ne définit pas font-size ni font-weight ici pour laisser hériter la police par défaut */
+        }
+
+        /* Styles pour l'animation des points */
+        .animated-dots {
+        display: inline-block;
+        }
+        .animated-dots span {
+        animation: blink 1.4s infinite both;
+        display: inline-block;
+        font-weight: bold;
+        font-size: 18px;
+        }
+        .animated-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+        }
+        .animated-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+        }
+        @keyframes blink {
+        0% { opacity: 0.2; }
+        20% { opacity: 1; }
+        100% { opacity: 0.2; }
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -106,10 +143,10 @@
         .custom-popup-header {
             background: rgb(0, 0, 0, 0.34);
             color:rgb(255, 255, 255);
-            padding: 25px 20px 25px; /* Augmente l’espace en haut ET en bas */
+            padding: 25px 20px 25px; /* Augmente l'espace en haut ET en bas */
             text-align: center;
             font-weight: bold;
-            height: 80px; /* Augmente la hauteur */
+            height: 50px; /* Augmente la hauteur */
             width: calc(100%);
             margin-left: -20px;
             margin-right: -20px;
@@ -119,14 +156,16 @@
             top: -20px;
         }
 
-
-        /* Styles pour les avatars */
+        /* Styles pour les avatars et statut en ligne - MODIFIÉ */
         .avatar-container {
-            display: flex;
+            display: inline-flex;
             justify-content: center;
             align-items: center;
             margin-top: 10px;
+            margin-right: 10px;
+            margin-left: -5px; /* au lieu de -10px pour équilibrer si besoin */
         }
+
 
         .avatar {
             width: 24px;
@@ -142,13 +181,16 @@
             margin-left: 0; /* Pas de marge pour le premier avatar */
         }
 
-        /* Styles pour la bulle verte "Cléa est en ligne" */
+        /* Styles pour la bulle verte "Cléa est en ligne" - MODIFIÉ */
         .online-status {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            margin-top: 5px;
+            vertical-align: middle;
+            margin-top: 10px;
+            margin-right: 15px; /* ➕ ajoute de l’espace à droite */
+            margin-left: -10px; /* tu peux conserver ou ajuster */
         }
+
 
         .online-dot {
             width: 8px;
@@ -167,32 +209,32 @@
         }
 
         .custom-popup-body {
-            flex: 1;
+            flex: 1;                /* Occupe tout l'espace disponible */
             overflow-y: auto;
-            padding-bottom: 18px;
+            padding-bottom: 10px;   /* Marge si besoin */
             display: flex;
             flex-direction: column;
             gap: 10px;
-            max-height: 300px;
+            max-height: calc(100% - 130px); /* Ajustement pour laisser de l'espace pour le footer */
+            margin-bottom: 10px;    /* Espace entre le body et le footer */
         }
 
+        /* NOUVELLES MODIFICATIONS: Footer toujours fixé en bas */
         .custom-popup-footer {
             position: absolute;
             bottom: 0;
             left: 0;
-            width: 100%;
+            right: 0;
             background: white;
-            padding: 12px;
+            padding: 12px 20px;
             display: flex;
             align-items: center;
             gap: 10px;
             flex-direction: column;
-            border-bottom-left-radius: 10px; /* Coins arrondis */
+            border-bottom-left-radius: 10px;
             border-bottom-right-radius: 10px;
-            box-sizing: border-box; /* Empêche le débordement en prenant en compte le padding */
+            box-sizing: border-box;
         }
-
-
 
         .clea-powered-text {
             font-size: 10px; /* Petite taille */
@@ -202,7 +244,7 @@
             bottom: 0px; /* Bien aligné en bas */
             right: 6px; /* Positionné à droite */
             text-decoration: none; /* Supprime le soulignement */
-            transition: opacity 0.2s ease-in-out; /* Animation de l’effet de survol */
+            transition: opacity 0.2s ease-in-out; /* Animation de l'effet de survol */
         }
 
         /* Effet au survol : Légèrement plus visible */
@@ -211,7 +253,6 @@
             color: rgba(0, 0, 0, 1); /* Devient un peu plus visible */
         }
 
-
         .custom-popup-divider {
             width: 90%; /* Modifiable */
             height: 1px;
@@ -219,6 +260,7 @@
             margin-bottom: 5px;
         }
 
+        /* MODIFICATION: Zone de texte maintenant fixée en bas et s'agrandit vers le haut */
         .custom-popup-textarea {
             width: 100%;
             min-height: 23px; /* Hauteur initiale */
@@ -229,22 +271,28 @@
             font-size: 14px;
             resize: none;
             outline: none;
+            height: auto;
+            transition: height 0.2s ease;
             overflow-y: auto; /* Active le scroll vertical quand la limite est atteinte */
+            box-sizing: border-box; /* Important pour le calcul correct des dimensions */
         }
 
         .custom-popup-textarea::placeholder {
-            font-size: 14px; /* Même taille que le nom du bot */
-            font-weight: bold; /* Même épaisseur */
-            color: #333; /* Même couleur */
-            opacity: 0.45; /* Même opacité */
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            opacity: 0.45;
             transition: opacity 0.3s ease-in-out;
         }
+
 
         .message {
             padding: 8px;
             border-radius: 5px;
             max-width: 80%;
             word-wrap: break-word;
+            font-family: 'Arial', sans-serif;
         }
 
         .message.user {
@@ -259,20 +307,18 @@
             position: relative;
         }
 
-
         /* Conteneur général du message de l'agent */
         .message.bot-container {
             display: flex;
             align-items: flex-start; /* Aligne en haut */
             gap: 10px; /* Espacement entre le logo et le message */
-            max-width: 80%;
+            max-width: 100%; /* Passe de 80% à 100% pour occuper toute la largeur */
             position: relative;
         }
         
         .custom-popup-body .message.bot-container:first-child {
             margin-top: 15px; /* Ajuste selon le besoin */
         }
-
 
         /* Style du logo Cléa */
         .bot-logo {
@@ -292,23 +338,28 @@
             opacity: 0.45;
         }
 
-
-
         /* Style du message du bot */
         .message.bot {
             background: #f1f1f1;
             color: black;
             padding: 12px;
             border-radius: 10px;
-            max-width: 100%;
+            /* max-width: 100%; déjà défini par le container */
             word-wrap: break-word;
             display: flex;
             flex-direction: column;
             position: relative;
+            flex: 1; /* Prend toute la largeur restante */
         }
 
-
-
+        /* Nouvelle classe pour le conteneur du textarea et du bouton d'envoi */
+        .textarea-container {
+            display: flex;
+            width: 100%;
+            align-items: flex-end; /* Aligne les éléments en bas */
+            gap: 10px;
+            position: relative;
+        }
     `;
 
     const styleSheet = document.createElement("style");
@@ -339,58 +390,56 @@
     widgetContainer.className = 'custom-popup-container';
     
     widgetContainer.innerHTML = `
-        <button id="custom-popup-toggle" class="custom-popup-button"><span>+</span></button>
+    <button id="custom-popup-toggle" class="custom-popup-button custom-popup-button-position">
+        <img id="toggle-icon" src="/public/logo_chat_support.png" alt="Ouvrir Cléa" style="width: 28px; height: 28px;">
+    </button>
         <div id="custom-popup-window" class="custom-popup-window">
             <div class="custom-popup-header">
                 Des Questions ? Discutons !
-                <div class="avatar-container">
-                    ${selectedAvatars.map(img => `<img src="${BASE_URL}${img}" class="avatar" alt="Avatar">`).join('')}
-                </div>
-                <div class="online-status">
-                    <span class="online-dot"></span>
-                    <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" 
-                        class="online-text" 
-                        target="_blank" 
-                        rel="noopener noreferrer">Cléa est en ligne
-                    </a>
-
-                </div>
-            </div>
-                <div class="custom-popup-body" id="custom-popup-body">
-                    <div style="height: -30px;"></div> <!-- Espace vide pour descendre le premier message -->
-                    
-                    <!-- Nom du bot -->
-                    <div class="bot-name">Cléa</div>
-                    
-                    <div class="message bot-container">
-                        <img src="/logo_cléa.png" alt="Logo Cléa" class="bot-logo">
-                        <div class="message bot">
-                            <span>Bonjour ! Comment puis-je vous aider ?</span>
-                        </div>
+                <div style="display: flex; justify-content: center; align-items: center;">
+                    <div class="online-status">
+                        <span class="online-dot"></span>
+                        <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" 
+                            class="online-text" 
+                            target="_blank" 
+                            rel="noopener noreferrer">Cléa est en ligne
+                        </a>
+                    </div>
+                    <div class="avatar-container">
+                        ${selectedAvatars.map(img => `<img src="${BASE_URL}${img}" class="avatar" alt="Avatar">`).join('')}
                     </div>
                 </div>
 
-
-        <div class="custom-popup-footer">
-            <div class="custom-popup-divider"></div> <!-- Ligne de séparation -->
-        <div class="custom-popup-footer">
-            <div class="custom-popup-divider"></div> <!-- Ligne de séparation -->
-            <div style="display: flex; width: 100%; align-items: center; gap: 10px;">
-                <textarea id="custom-popup-textarea" class="custom-popup-textarea" placeholder="Écrivez ici..."></textarea>
-                <button id="custom-popup-send" class="custom-popup-send" style="display: none;">
-                    <img src="/send_button.png" alt="Envoyer" class="send-icon">
-                </button>
             </div>
-            <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" 
-            class="clea-powered-text" 
-            target="_blank" 
-            rel="noopener noreferrer">
-                Fonctionne avec Cléa
-            </a>
+            <div class="custom-popup-body" id="custom-popup-body">
+                <div style="height: -30px;"></div> <!-- Espace vide pour descendre le premier message -->
+                
+                <!-- Nom du bot -->
+                <div class="bot-name">Cléa</div>
+                
+                <div class="message bot-container">
+                    <img src="/logo_cléa.png" alt="Logo Cléa" class="bot-logo">
+                    <div class="message bot">
+                        <span>Bonjour ! Comment puis-je vous aider ?</span>
+                    </div>
+                </div>
+            </div>
 
-        </div>
-
-
+            <div class="custom-popup-footer">
+                <div class="custom-popup-divider"></div> <!-- Ligne de séparation -->
+                <div class="textarea-container">
+                    <textarea id="custom-popup-textarea" class="custom-popup-textarea" placeholder="Écrivez ici..."></textarea>
+                    <button id="custom-popup-send" class="custom-popup-send" style="display: none;">
+                        <img src="/send_button.png" alt="Envoyer" class="send-icon">
+                    </button>
+                </div>
+                <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" 
+                class="clea-powered-text" 
+                target="_blank" 
+                rel="noopener noreferrer">
+                    Fonctionne avec Cléa
+                </a>
+            </div>
         </div>
     `;
     
@@ -399,7 +448,10 @@
     function setupWidgetEvents() {
         const toggleButton = document.getElementById("custom-popup-toggle");
         const popup = document.getElementById("custom-popup-window");
-        const toggleIcon = toggleButton.querySelector("span");
+        // Fermer le popup au démarrage
+        popup.style.display = "none";
+
+        const toggleIcon = document.getElementById("toggle-icon");
         const textarea = document.getElementById("custom-popup-textarea");
         const sendButton = document.getElementById("custom-popup-send");
         const chatBody = document.getElementById("custom-popup-body");
@@ -407,30 +459,39 @@
         // Récupérer l'ID de conversation stocké
         const currentConversationId = sessionStorage.getItem('chatConversationId');
 
+        // MODIFICATION: Ajustement du textarea pour qu'il s'agrandisse vers le haut
         textarea.addEventListener("input", function () {
-            // Réinitialise la hauteur pour éviter l'agrandissement infini
-            textarea.style.height = "auto";
+            // Sauvegarde de la position de défilement actuelle
+            const scrollPos = chatBody.scrollTop;
             
-            // Ajuste la hauteur selon le contenu sans dépasser la limite
-            textarea.style.height = Math.min(textarea.scrollHeight, 100) + "px";
-        
-            // Gère l'affichage du bouton d'envoi
+            // Réinitialise la hauteur puis ajuste en fonction du contenu
+            textarea.style.height = "auto";
+            const newHeight = Math.min(textarea.scrollHeight, 100); // Limite à max-height
+            textarea.style.height = newHeight + "px";
+            
+            // Ajuste le scroll du body pour compenser l'agrandissement vers le haut
+            if (textarea.scrollHeight > 23 && chatBody.scrollHeight > chatBody.clientHeight) {
+                chatBody.scrollTop = scrollPos + (newHeight - 23);
+            }
+            
             if (textarea.value.trim().length > 0) {
-                sendButton.style.display = "block"; // Affiche le bouton si du texte est saisi
+                sendButton.style.display = "block";
             } else {
-                sendButton.style.display = "none"; // Cache le bouton si le champ est vide
+                sendButton.style.display = "none";
             }
         });
         
         toggleButton.addEventListener("click", function() {
             popup.style.display = popup.style.display === "block" ? "none" : "block";
             toggleButton.classList.toggle("red");
-            toggleIcon.textContent = popup.style.display === "block" ? "×" : "+";
-
-                // Cacher le bouton d'envoi à l'ouverture du popup
+            toggleIcon.src = popup.style.display === "block"
+            ? "/public/logo_chat_support.png" // même logo ou autre version pour "fermé"
+            : "/public/logo_chat_support.png";
+            // Cacher le bouton d'envoi à l'ouverture du popup
             if (popup.style.display === "block") {
                 sendButton.style.display = "none";
                 textarea.value = ""; // Réinitialise aussi le champ texte
+                textarea.style.height = "23px"; // Réinitialiser la hauteur
             }
         });
 
@@ -439,18 +500,58 @@
             if (!messageText) {
                 return;
             }
-        
+            
             // Message utilisateur (NE PAS TOUCHER)
             const userMessage = document.createElement("div");
             userMessage.className = "message user";
             userMessage.textContent = messageText;
             chatBody.appendChild(userMessage);
             chatBody.scrollTop = chatBody.scrollHeight;
-        
+            
             textarea.value = "";
             textarea.style.height = "23px"; // Réinitialise la hauteur
+            chatBody.style.maxHeight = "calc(100% - 180px)";
             sendButton.style.display = "none";
-        
+            
+            // Création du message d'attente du bot avec "Réflexion en cours"
+            const placeholderBotMessageWrapper = document.createElement("div");
+            placeholderBotMessageWrapper.className = "message bot-container";
+            
+            const botLogoPlaceholder = document.createElement("img");
+            botLogoPlaceholder.src = "/logo_cléa.png";
+            botLogoPlaceholder.alt = "Logo Cléa";
+            botLogoPlaceholder.className = "bot-logo";
+            
+            const placeholderBotMessageContainer = document.createElement("div");
+            placeholderBotMessageContainer.className = "message bot";
+            
+            // Création du placeholder avec "Réflexion en cours" animé lettre par lettre
+            const placeholderText = document.createElement("span");
+            placeholderText.className = "animated-reflection"; // Nouvelle classe pour conserver la police d'origine
+            const reflectionText = "Réflexion en cours";
+            placeholderText.innerHTML = ""; // S'assurer qu'il est vide
+            for (let i = 0; i < reflectionText.length; i++) {
+                const letterSpan = document.createElement("span");
+                letterSpan.textContent = reflectionText[i];
+                // Ajustement de l'animation sur chaque lettre (délai progressif)
+                letterSpan.style.animationDelay = `${i * 0.1}s`;
+                placeholderText.appendChild(letterSpan);
+            }
+            
+            placeholderBotMessageContainer.appendChild(placeholderText);
+            placeholderBotMessageWrapper.appendChild(botLogoPlaceholder);
+            placeholderBotMessageWrapper.appendChild(placeholderBotMessageContainer);
+            
+            chatBody.appendChild(placeholderBotMessageWrapper);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            
+            // Après 2.5 secondes, si la réponse n'est toujours pas reçue, remplacer le texte par l'animation des 3 points
+            let placeholderTimer = setTimeout(() => {
+                // Remplacer la classe pour activer l'animation des points
+                placeholderText.className = "animated-dots";
+                placeholderText.innerHTML = `<span>.</span><span>.</span><span>.</span>`;
+            }, 2500);
+            
             try {
                 const response = await fetch(WEBHOOK_URL, {
                     method: "POST",
@@ -470,47 +571,71 @@
                 });
                 
                 const data = await response.json();
-        
+                
+                // Dès que la réponse est reçue, annuler le timer si toujours actif
+                clearTimeout(placeholderTimer);
+                
+                // Supprimer le message d'attente une fois la réponse reçue
+                chatBody.removeChild(placeholderBotMessageWrapper);
+                
                 // Conteneur du message du bot
                 const botMessageWrapper = document.createElement("div");
-                botMessageWrapper.className = "message bot-container"; // Ne touche pas aux messages utilisateurs
-        
+                botMessageWrapper.className = "message bot-container";
+                
                 // Texte "Cléa" au-dessus
                 const botName = document.createElement("div");
                 botName.className = "bot-name";
                 botName.textContent = "Cléa";
-        
+                
                 // Logo du bot
                 const botLogo = document.createElement("img");
                 botLogo.src = "/logo_cléa.png";
                 botLogo.alt = "Logo Cléa";
                 botLogo.className = "bot-logo";
-        
-                // Bulle de message
+                
+                // Bulle de message avec la réponse
                 const botMessageContainer = document.createElement("div");
                 botMessageContainer.className = "message bot";
                 const botMessageText = document.createElement("span");
-                botMessageText.textContent = data[0]?.output || "Je n'ai pas compris.";
-        
-                // Ajout des éléments au conteneur du message du bot
+                botMessageText.textContent = "";
+                // Lancer l'animation avec le texte retourné par l'IA
+                animateText(botMessageText, data[0]?.output || "Je n'ai pas compris.", 10);
+                
                 botMessageContainer.appendChild(botMessageText);
                 botMessageWrapper.appendChild(botLogo);
                 botMessageWrapper.appendChild(botMessageContainer);
-        
+                
                 // Ajout au chat (en gardant l'ordre correct)
                 chatBody.appendChild(botName);
                 chatBody.appendChild(botMessageWrapper);
                 chatBody.scrollTop = chatBody.scrollHeight;
-        
+            
             } catch (error) {
                 console.error("Erreur Webhook:", error);
-                const errorMessage = document.createElement("div");
-                errorMessage.className = "message bot";
-                errorMessage.textContent = "Désolé, une erreur est survenue lors de la communication avec le serveur.";
-                chatBody.appendChild(errorMessage);
+                clearTimeout(placeholderTimer);
+                placeholderBotMessageContainer.textContent = "Désolé, une erreur est survenue lors de la communication avec le serveur.";
                 chatBody.scrollTop = chatBody.scrollHeight;
             }
         }
+
+        function animateText(element, text, interval = 15, callback) {
+            let index = 0;
+            const timer = setInterval(() => {
+            element.textContent += text.charAt(index);
+            index++;
+              // À chaque ajout, faire défiler le chat vers le bas
+            chatBody.scrollTop = chatBody.scrollHeight;
+            if (index === text.length) {
+                clearInterval(timer);
+                if (callback) callback();
+            }
+            }, interval);
+        }
+        
+        
+        
+        
+
         
         
 
@@ -523,10 +648,24 @@
         });
 
         textarea.addEventListener("input", function () {
+            // Réinitialise la hauteur puis ajuste en fonction du contenu
+            textarea.style.height = "auto";
+            const newHeight = Math.min(textarea.scrollHeight, 100); // Limite à max-height
+            textarea.style.height = newHeight + "px";
+            
+            // Calculer la différence de hauteur pour ajuster le body
+            const heightDifference = newHeight - 23; // 23px est la hauteur initiale
+            
+            // Ajuster la hauteur maximale du body en fonction de la taille du textarea
+            chatBody.style.maxHeight = `calc(100% - ${180 + heightDifference}px)`;
+            
+            // Faire défiler jusqu'au dernier message
+            chatBody.scrollTop = chatBody.scrollHeight;
+            
             if (textarea.value.trim().length > 0) {
-                sendButton.style.display = "block"; // Affiche le bouton si du texte est saisi
+                sendButton.style.display = "block";
             } else {
-                sendButton.style.display = "none"; // Cache le bouton si le champ est vide
+                sendButton.style.display = "none";
             }
         });
         
