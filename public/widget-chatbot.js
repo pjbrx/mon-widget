@@ -391,7 +391,7 @@
     
     widgetContainer.innerHTML = `
     <button id="custom-popup-toggle" class="custom-popup-button custom-popup-button-position">
-        <img id="toggle-icon" src="/public/logo_chat_support.png" alt="Ouvrir Cléa" style="width: 28px; height: 28px;">
+        <img id="toggle-icon" src="/logo_chat_support.png" alt="Ouvrir Cléa" style="width: 28px; height: 28px;">
     </button>
         <div id="custom-popup-window" class="custom-popup-window">
             <div class="custom-popup-header">
