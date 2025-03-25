@@ -37,18 +37,31 @@
         }
 
         .custom-popup-button {
-            width: 50px;
-            height: 50px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
+            background-color: #000;
             border: none;
-            background-color:rgb(0, 0, 0);
-            color: white;
             cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease;
+            padding: 0;
+            overflow: hidden;    
         }
+
+        .custom-popup-button:hover {
+            transform: scale(1.05);
+        }
+
+        .custom-popup-button img {
+            width: 50%;
+            height: 50%;
+            object-fit: contain;
+        }
+
 
         .custom-popup-button.red {
             background-color:rgb(247, 247, 247);
@@ -57,8 +70,8 @@
 
         .custom-popup-button-position {
             position: fixed;
-            bottom: 41px;
-            right: 47px;
+            bottom: 48px;
+            right: 70px;
             z-index: 1005;
         }
 
@@ -390,8 +403,8 @@
     widgetContainer.className = 'custom-popup-container';
     
     widgetContainer.innerHTML = `
-    <button id="custom-popup-toggle" class="custom-popup-button custom-popup-button-position">
-        <img id="toggle-icon" src="/logo_chat_support.png" alt="Ouvrir Cléa" style="width: 28px; height: 28px;">
+    <button id="custom-popup-toggle" class="custom-popup-button custom-popup-button-position" aria-label="Ouvrir le chat Cléa">
+        <img id="toggle-icon" src="/logo_chat_final.webp" alt="Icône Cléa">
     </button>
         <div id="custom-popup-window" class="custom-popup-window">
             <div class="custom-popup-header">
@@ -485,8 +498,8 @@
             popup.style.display = popup.style.display === "block" ? "none" : "block";
             toggleButton.classList.toggle("red");
             toggleIcon.src = popup.style.display === "block"
-            ? "/logo_chat_support.png" // même logo ou autre version pour "fermé"
-            : "/logo_chat_support.png";
+            ? "/logo_chat_final.webp" // même logo ou autre version pour "fermé"
+            : "/logo_chat_final.webp";
             // Cacher le bouton d'envoi à l'ouverture du popup
             if (popup.style.display === "block") {
                 sendButton.style.display = "none";

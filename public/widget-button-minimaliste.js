@@ -241,7 +241,7 @@ const widgetHTML = `
             <img src="logo_cléa.jpg" alt="Logo Cléa" class="widget-image">
         </a>
         <svg class="widget-shape" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-            <!-- Forme du widget avec un trou réellement traversable -->
+            <!-- Forme principale avec trou circulaire -->
             <path d="
                 M2.5,50
                 A8,8 0 0 1 10.5,42
@@ -253,16 +253,28 @@ const widgetHTML = `
                 A8,8 0 0 1 2.5,117
                 Z
 
-                                            
-                M 85,55
-                L 190,55
-                A 15 15 0 0 1 190,90
-                L 85,90
-                A 15 15 0 0 1 85,55
+                M 137.5,72.5
+                A 17.5 17.5 0 0 1 155,90
+                A 17.5 17.5 0 0 1 137.5,107.5
+                A 17.5 17.5 0 0 1 120,90
+                A 17.5 17.5 0 0 1 137.5,72.5
                 Z
-            " fill="rgb(255, 255, 255)" stroke="black" stroke-width="0
-            " fill-rule="evenodd"/>
-            <!-- Texte intégré dans le SVG -->
+            " fill="rgb(255, 255, 255)" stroke="black" stroke-width="0" fill-rule="evenodd"/>
+
+            <!-- ✅ Bordure décorative supplémentaire -->
+            <path d="
+                M2.5,50
+                A8,8 0 0 1 10.5,42
+                L250,42
+                A8,8 0 0 1 258,50
+                L258,117
+                A8,8 0 0 1 250,125
+                L10.5,125
+                A8,8 0 0 1 2.5,117
+                Z
+            " fill="none" stroke="red" stroke-width="2"/>
+
+            <!-- Texte intégré -->
             <text x="45%" y="110" font-family="Arial, sans-serif" font-size="10" fill="rgba(0, 0, 0, 0.6)" text-anchor="middle" pointer-events="auto">
                 Conçu avec soin par 
                 <tspan font-weight="bold" fill="#007bff" text-decoration="underline">
@@ -288,14 +300,15 @@ const widgetHTML = `
                     <span class="online-dot"></span>
                     <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" target="_blank" class="popup-online-text">Cléa est en ligne</a>
                 </div>
-                        <!-- Avatars superposés -->
-                    <div class="avatar-container">
-                        ${selectedAvatars.map(img => `<img src="${BASE_URL}${img}" class="avatar" alt="Utilisateur">`).join('')}
-                    </div>
+                <!-- Avatars superposés -->
+                <div class="avatar-container">
+                    ${selectedAvatars.map(img => `<img src="${BASE_URL}${img}" class="avatar" alt="Utilisateur">`).join('')}
+                </div>
             </div>
         </div>
     </div>
 `;
+
 
 // Injecter le HTML dans le body
 // ❌ Retirer cette ligne (ou commenter)
