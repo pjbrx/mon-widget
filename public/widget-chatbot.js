@@ -373,6 +373,19 @@
             gap: 10px;
             position: relative;
         }
+
+        /* Styles pour la mise en forme en paragraphes */
+        .paragraph-container {
+            margin: 10px 0;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        .paragraph-container a {
+            text-decoration: underline;
+            color: #007bff;
+        }
+
+
     `;
 
     const styleSheet = document.createElement("style");
@@ -508,6 +521,28 @@
             }
         });
 
+        function linkify(text) {
+            // Regex simple pour capturer http/https ou "www." suivi de caractères non-espace
+            const urlRegex = /((https?:\/\/|www\.)[^\s]+)/g;
+            return text.replace(urlRegex, (match) => {
+                // Au cas où le lien ne commence pas par http
+                let url = match.startsWith('http') ? match : 'https://' + match;
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+            });
+        }
+
+        function formatResponse(text) {
+            // Utilise le délimiteur "|||"" pour séparer les paragraphes
+            let paragraphs = text.split("|||").map(p => p.trim()).filter(p => p.length > 0);
+            // Pour chaque paragraphe, on remplace le contenu entre crochets par du HTML en gras
+            paragraphs = paragraphs.map(p => p.replace(/\[([^\]]+)\]/g, "<strong>$1</strong>"));
+            // Retourne le HTML avec chaque paragraphe enveloppé dans <p class="paragraph-container">
+            return paragraphs.map(p => `<p class="paragraph-container">${p}</p>`).join("");
+        }
+        
+        
+        
+
         async function sendMessage() {
             const messageText = textarea.value.trim();
             if (!messageText) {
@@ -633,17 +668,27 @@
 
         function animateText(element, text, interval = 15, callback) {
             let index = 0;
+            let finalText = '';
             const timer = setInterval(() => {
-            element.textContent += text.charAt(index);
-            index++;
-              // À chaque ajout, faire défiler le chat vers le bas
-            chatBody.scrollTop = chatBody.scrollHeight;
-            if (index === text.length) {
-                clearInterval(timer);
-                if (callback) callback();
-            }
+                finalText += text.charAt(index);
+                // On met à jour le texte brut pour l'effet de frappe
+                element.textContent = finalText;
+                index++;
+                chatBody.scrollTop = chatBody.scrollHeight;
+                if (index === text.length) {
+                    clearInterval(timer);
+                    // On transforme d'abord le texte pour rendre les liens cliquables
+                    const linkified = linkify(finalText);
+                    // Puis on applique la mise en forme en paragraphes
+                    const formatted = formatResponse(linkified);
+                    element.innerHTML = formatted;
+                    if (callback) callback();
+                }
             }, interval);
         }
+        
+        
+        
         
         
         
