@@ -361,13 +361,19 @@ document.body.appendChild(script);
     };
 
     // Créer et stocker l'ID de conversation
-    const conversationId = generateConversationId();
-    
-    // Stocker l'ID dans sessionStorage pour le conserver pendant la session de navigation
-    sessionStorage.setItem('chatConversationId', conversationId);
-    
-    // Log pour vérification (à supprimer en production)
-    console.log("ID de conversation:", conversationId);
+    function getConversationId() {
+        let id = localStorage.getItem("conversationId");
+        if (!id) {
+            const timestamp = new Date().getTime();
+            const randomPart = Math.random().toString(36).substring(2, 15);
+            const browserInfo = navigator.userAgent.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+            id = `conv_${timestamp}_${randomPart}_${browserInfo}`;
+            localStorage.setItem("conversationId", id);
+        }
+        return id;
+        }
+      // Utilisation de la fonction pour obtenir l'ID de conversation
+        const conversationId = getConversationId();
 
     const styles = `
         .custom-popup-container {
@@ -813,17 +819,227 @@ document.body.appendChild(script);
     
     shadowRoot.appendChild(widgetContainer);
 
+    function formatResponse(text) {
+        // 1) Supprime la chaîne "```markdown" pour éviter qu'elle apparaisse
+        text = text.replace(/```markdown/g, "```");
+        text = text.trim();
+        // 2) Supprime tous les emojis courants (Unicode)
+        text = text.replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "");
+    
+        // 3) Transforme les blocs de code
+        text = text.replace(
+          /```([\s\S]*?)```/g,
+          "<pre style='white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;max-width:100%;'><code>$1</code></pre>"
+        );
+    
+        // 4) Transforme les titres (H1 à H6)
+        text = text.replace(/^######\s*(.+)$/gm, "<h6 style='margin:8px 0;word-break:break-word;'>$1</h6>");
+        text = text.replace(/^#####\s*(.+)$/gm, "<h5 style='margin:8px 0;word-break:break-word;'>$1</h5>");
+        text = text.replace(/^####\s*(.+)$/gm, "<h4 style='margin:8px 0;word-break:break-word;'>$1</h4>");
+        text = text.replace(/^###\s*(.+)$/gm, "<h3 style='margin:8px 0;word-break:break-word;'>$1</h3>");
+        text = text.replace(/^##\s*(.+)$/gm, "<h2 style='margin:8px 0;word-break:break-word;'>$1</h2>");
+        text = text.replace(/^#\s*(.+)$/gm, "<h1 style='margin:8px 0;word-break:break-word;'>$1</h1>");
+    
+        // 5) Transforme les citations
+        text = text.replace(
+          /^>\s*(.+)$/gm,
+          "<blockquote style='margin:8px 0;padding-left:10px;border-left:3px solid #ccc;word-break:break-word;'>$1</blockquote>"
+        );
+    
+        // 6) Transforme les lignes commençant par * ou - en listes à puces
+        //    On autorise les espaces avant l'astérisque/tiret et après.
+        //    Chaque bloc de lignes sera converti en <ul> avec des <li>.
+        text = text.replace(/((?:^[ \t]*[-*][ \t]+.+\n?)+)/gm, function(match) {
+          const items = match
+            .split(/\r?\n/)
+            .filter(item => item.trim() !== "")
+            .map(item => item.replace(/^[ \t]*[-*][ \t]+/, "<li style='word-break:break-word;'>") + "</li>")
+            .join("");
+          return "<ul style='margin:8px 0;padding-left:20px;'>" + items + "</ul>";
+        });
+    
+        // 7) Transforme le texte en gras avec **texte**
+        text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    
+        // 8) Transforme le texte en italique avec *texte* 
+        //    (sauf si l’astérisque est en début de ligne, car c'est déjà géré comme puce)
+        text = text.replace(
+          /(^|[^*])\*([^*\n]+)\*(?!\*)/g, 
+          function(match, before, content) {
+            return before + "<em>" + content + "</em>";
+          }
+        );
+    
+        // 9) Transforme les liens
+        text = text.replace(/((https?:\/\/|www\.)[^\s]+)/g, function(match) {
+          let url = match.startsWith('http') ? match : 'https://' + match;
+          return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${match}</a>`;
+        });
+    
+        // 10) Découpe le texte en paragraphes via le délimiteur "|||"
+        let paragraphs = text
+          .split("|||")
+          .map(p => p.trim())
+          .filter(p => p.length > 0);
+    
+        // Pour chaque paragraphe, on remplace le contenu entre crochets par <strong>
+        paragraphs = paragraphs.map(p => p.replace(/\[([^\]]+)\]/g, "<strong>$1</strong>"));
+    
+        // 11) Retourne le HTML, chaque paragraphe dans un <p>
+        let formatted = paragraphs
+          .map(p => `<p style="margin:8px 0;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;max-width:100%;">${p}</p>`)
+          .join("");
+    
+        // 12) Encapsule dans un conteneur .bot-content
+        formatted = `<div class="bot-content" style="max-width:100%;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;">${formatted}</div>`;
+    
+        // 13) Évite qu'une ponctuation se retrouve en début de ligne
+        formatted = formatted.replace(/(\w)\s+([,.!?;:]+)/g, "$1&nbsp;$2");
+    
+        return formatted;
+    }
+
+    // Sauvegarde l'historique de conversation dans le localStorage
+    function saveChatHistory(history) {
+        localStorage.setItem('chatHistory', JSON.stringify(history));
+    }
+    
+    // Restaure l'historique de conversation depuis le localStorage
+    function loadChatHistory() {
+        const history = localStorage.getItem('chatHistory');
+        return history ? JSON.parse(history) : [];
+    }
+    
+    // Sauvegarde l'état du chat (open/closed)
+    function saveChatState(state) {
+        localStorage.setItem('chatState', state);
+    }
+    
+    // Restaure l'état du chat
+    function loadChatState() {
+        return localStorage.getItem('chatState') || 'closed';
+    }
+    
+    // Sauvegarde la position de défilement
+    function saveChatScroll(scrollPos) {
+        localStorage.setItem('chatScroll', scrollPos);
+    }
+    
+    // Restaure la position de défilement
+    function loadChatScroll() {
+        const pos = localStorage.getItem('chatScroll');
+        return pos ? parseInt(pos, 10) : 0;
+    }
+    function restoreChat() {
+        // Restaure l'état du chat (si "open", affiche la fenêtre)
+        const savedState = loadChatState();
+        const popup = shadowRoot.getElementById("custom-popup-window");
+        if (savedState === "closed") {
+            popup.style.display = "none";
+        } else {
+            popup.style.display = "block";
+            const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
+            toggleButton.classList.add("red");
+        }
+        
+        // Restaure l'historique de conversation
+        const history = loadChatHistory();
+        const chatBody = shadowRoot.getElementById("custom-popup-body");
+        // Efface le contenu actuel
+        chatBody.innerHTML = "";
+        
+        // Variable pour stocker la date du dernier message bot affiché
+        let lastBotDate = "";
+        
+        history.forEach(message => {
+            if (message.sender === "bot") {
+                // Formatage de la date du message (ex: "Mardi 1 avril")
+                let msgDate = new Date(message.timestamp);
+                let dateString = msgDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+                // Mettre en majuscule la première lettre
+                dateString = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+                
+                // Si cette date est différente de la dernière affichée, afficher la date
+                if (dateString !== lastBotDate) {
+                    const dateElement = document.createElement("div");
+                    // On peut définir une classe CSS ou appliquer des styles inline
+                    dateElement.className = "bot-date";
+                    dateElement.style.fontSize = "10px";
+                    dateElement.style.fontWeight = "bold";
+                    dateElement.style.marginBottom = "5px";
+                    dateElement.style.marginTop = "10px";
+                    // Ajoute la date dans le container (ici on l'insère avant le prochain message bot)
+                    chatBody.appendChild(dateElement);
+                    dateElement.textContent = dateString;
+                    lastBotDate = dateString;
+                }
+                
+                // Créez la structure habituelle pour le message du bot
+                const botName = document.createElement("div");
+                botName.className = "bot-name";
+                botName.textContent = "Cléa";
+                
+                const botMessageWrapper = document.createElement("div");
+                botMessageWrapper.className = "message bot-container";
+                
+                const botLogo = document.createElement("img");
+                botLogo.src = "https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_rentiteasy.png";
+                botLogo.alt = "Logo ExpansionTV";
+                botLogo.className = "bot-logo";
+                
+                const botMessageContainer = document.createElement("div");
+                botMessageContainer.className = "message bot";
+                botMessageContainer.innerHTML = formatResponse(message.text);
+                
+                // Ajoute l'heure du message dans un span
+                const timeSpan = document.createElement("span");
+                timeSpan.style.fontSize = "10px";
+                timeSpan.style.opacity = "0.6";
+                timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
+                botMessageContainer.appendChild(timeSpan);
+                
+                botMessageWrapper.appendChild(botLogo);
+                botMessageWrapper.appendChild(botMessageContainer);
+                
+                // Ajoute le nom du bot et le message dans le container
+                chatBody.appendChild(botName);
+                chatBody.appendChild(botMessageWrapper);
+            } else { // Pour les messages utilisateur
+                const msgDiv = document.createElement("div");
+                msgDiv.className = "message user";
+                msgDiv.innerHTML = formatResponse(message.text);
+                
+                const timeSpan = document.createElement("span");
+                timeSpan.style.fontSize = "10px";
+                timeSpan.style.opacity = "0.6";
+                timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
+                msgDiv.appendChild(timeSpan);
+                
+                chatBody.appendChild(msgDiv);
+            }
+        });
+        
+        // Restaure la position de défilement
+        chatBody.scrollTop = loadChatScroll();
+        
+        // Applique la nouvelle taille de la zone de chat
+        chatBody.style.maxHeight = "calc(100% - 180px)";
+    }
+
     function setupWidgetEvents() {
+        restoreChat();
         const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
         const popup = shadowRoot.getElementById("custom-popup-window");
         // Fermer le popup au démarrage
-        popup.style.display = "none";
 
         const toggleIcon = shadowRoot.getElementById("toggle-icon");
         const textarea = shadowRoot.getElementById("custom-popup-textarea");
         const sendButton = shadowRoot.getElementById("custom-popup-send");
         const chatBody = shadowRoot.getElementById("custom-popup-body");
 
+        chatBody.addEventListener("scroll", function() {
+            saveChatScroll(chatBody.scrollTop);
+        });
         // Récupérer l'ID de conversation stocké
         const currentConversationId = sessionStorage.getItem('chatConversationId');
 
@@ -850,16 +1066,14 @@ document.body.appendChild(script);
         });
         
         toggleButton.addEventListener("click", function() {
-            popup.style.display = popup.style.display === "block" ? "none" : "block";
-            toggleButton.classList.toggle("red");
-            toggleIcon.src = popup.style.display === "block"
-            ? "https://pjbrx.github.io/Clea_agent_conversationnel/logo_chat_final.webp" // même logo ou autre version pour "fermé"
-            : "https://pjbrx.github.io/Clea_agent_conversationnel/logo_chat_final.webp";
-            // Cacher le bouton d'envoi à l'ouverture du popup
             if (popup.style.display === "block") {
-                sendButton.style.display = "none";
-                textarea.value = ""; // Réinitialise aussi le champ texte
-                textarea.style.height = "23px"; // Réinitialiser la hauteur
+                popup.style.display = "none";
+                toggleButton.classList.remove("red");
+                saveChatState("closed");
+            } else {
+                popup.style.display = "block";
+                toggleButton.classList.add("red");
+                saveChatState("open");
             }
         });
 
@@ -872,15 +1086,6 @@ document.body.appendChild(script);
                 return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`;
             });
         }
-
-        function formatResponse(text) {
-            // Utilise le délimiteur "|||"" pour séparer les paragraphes
-            let paragraphs = text.split("|||").map(p => p.trim()).filter(p => p.length > 0);
-            // Pour chaque paragraphe, on remplace le contenu entre crochets par du HTML en gras
-            paragraphs = paragraphs.map(p => p.replace(/\[([^\]]+)\]/g, "<strong>$1</strong>"));
-            // Retourne le HTML avec chaque paragraphe enveloppé dans <p class="paragraph-container">
-            return paragraphs.map(p => `<p class="paragraph-container">${p}</p>`).join("");
-        }
         
         
         
@@ -890,6 +1095,15 @@ document.body.appendChild(script);
             if (!messageText) {
                 return;
             }
+
+            let history = loadChatHistory();
+            const userMsg = {
+                sender: "user",
+                text: messageText,
+                timestamp: new Date().toISOString()
+            };
+            history.push(userMsg);
+            saveChatHistory(history);
             
             // Message utilisateur (NE PAS TOUCHER)
             const userMessage = document.createElement("div");
@@ -934,7 +1148,8 @@ document.body.appendChild(script);
             
             chatBody.appendChild(placeholderBotMessageWrapper);
             chatBody.scrollTop = chatBody.scrollHeight;
-            
+            saveChatScroll(chatBody.scrollTop);
+
             // Après 2.5 secondes, si la réponse n'est toujours pas reçue, remplacer le texte par l'animation des 3 points
             let placeholderTimer = setTimeout(() => {
                 // Remplacer la classe pour activer l'animation des points
@@ -970,6 +1185,14 @@ document.body.appendChild(script);
                 // Supprimer le message d'attente une fois la réponse reçue
                 chatBody.removeChild(placeholderBotMessageWrapper);
                 
+                const botMsg = {
+                    sender: "bot",
+                    text: data[0]?.output || "Je n'ai pas compris.",
+                    timestamp: new Date().toISOString()
+                };
+                history.push(botMsg);
+                saveChatHistory(history);
+
                 // Conteneur du message du bot
                 const botMessageWrapper = document.createElement("div");
                 botMessageWrapper.className = "message bot-container";
@@ -1001,6 +1224,7 @@ document.body.appendChild(script);
                 chatBody.appendChild(botName);
                 chatBody.appendChild(botMessageWrapper);
                 chatBody.scrollTop = chatBody.scrollHeight;
+                saveChatScroll(chatBody.scrollTop);
             
             } catch (error) {
                 console.error("Erreur Webhook:", error);

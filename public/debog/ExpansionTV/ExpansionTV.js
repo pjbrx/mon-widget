@@ -359,15 +359,24 @@ document.body.appendChild(script);
         // Combinaison de ces éléments pour créer un ID unique
         return `conv_${timestamp}_${randomPart}_${browserInfo}`;
     };
+    // Après l'injection du CSS et avant la création du widget
+
+// Fonction pour récupérer ou générer un ID de conversation persistant
+function getConversationId() {
+    let id = localStorage.getItem("conversationId");
+    if (!id) {
+        const timestamp = new Date().getTime();
+        const randomPart = Math.random().toString(36).substring(2, 15);
+        const browserInfo = navigator.userAgent.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+        id = `conv_${timestamp}_${randomPart}_${browserInfo}`;
+        localStorage.setItem("conversationId", id);
+    }
+    return id;
+    }
+  // Utilisation de la fonction pour obtenir l'ID de conversation
+    const conversationId = getConversationId();
 
     // Créer et stocker l'ID de conversation
-    const conversationId = generateConversationId();
-    
-    // Stocker l'ID dans sessionStorage pour le conserver pendant la session de navigation
-    sessionStorage.setItem('chatConversationId', conversationId);
-    
-    // Log pour vérification (à supprimer en production)
-    console.log("ID de conversation:", conversationId);
 
     const styles = `
         .custom-popup-container {
@@ -825,7 +834,91 @@ document.body.appendChild(script);
     
     shadowRoot.appendChild(widgetContainer);
 
-        // Sauvegarde l'historique de conversation dans le localStorage
+
+
+
+
+    function formatResponse(text) {
+        // 1) Supprime la chaîne "```markdown" pour éviter qu'elle apparaisse
+        text = text.replace(/```markdown/g, "```");
+        text = text.trim();
+        // 2) Supprime tous les emojis courants (Unicode)
+        text = text.replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "");
+    
+        // 3) Transforme les blocs de code
+        text = text.replace(
+          /```([\s\S]*?)```/g,
+          "<pre style='white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;max-width:100%;'><code>$1</code></pre>"
+        );
+    
+        // 4) Transforme les titres (H1 à H6)
+        text = text.replace(/^######\s*(.+)$/gm, "<h6 style='margin:8px 0;word-break:break-word;'>$1</h6>");
+        text = text.replace(/^#####\s*(.+)$/gm, "<h5 style='margin:8px 0;word-break:break-word;'>$1</h5>");
+        text = text.replace(/^####\s*(.+)$/gm, "<h4 style='margin:8px 0;word-break:break-word;'>$1</h4>");
+        text = text.replace(/^###\s*(.+)$/gm, "<h3 style='margin:8px 0;word-break:break-word;'>$1</h3>");
+        text = text.replace(/^##\s*(.+)$/gm, "<h2 style='margin:8px 0;word-break:break-word;'>$1</h2>");
+        text = text.replace(/^#\s*(.+)$/gm, "<h1 style='margin:8px 0;word-break:break-word;'>$1</h1>");
+    
+        // 5) Transforme les citations
+        text = text.replace(
+          /^>\s*(.+)$/gm,
+          "<blockquote style='margin:8px 0;padding-left:10px;border-left:3px solid #ccc;word-break:break-word;'>$1</blockquote>"
+        );
+    
+        // 6) Transforme les lignes commençant par * ou - en listes à puces
+        //    On autorise les espaces avant l'astérisque/tiret et après.
+        //    Chaque bloc de lignes sera converti en <ul> avec des <li>.
+        text = text.replace(/((?:^[ \t]*[-*][ \t]+.+\n?)+)/gm, function(match) {
+          const items = match
+            .split(/\r?\n/)
+            .filter(item => item.trim() !== "")
+            .map(item => item.replace(/^[ \t]*[-*][ \t]+/, "<li style='word-break:break-word;'>") + "</li>")
+            .join("");
+          return "<ul style='margin:8px 0;padding-left:20px;'>" + items + "</ul>";
+        });
+    
+        // 7) Transforme le texte en gras avec **texte**
+        text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    
+        // 8) Transforme le texte en italique avec *texte* 
+        //    (sauf si l’astérisque est en début de ligne, car c'est déjà géré comme puce)
+        text = text.replace(
+          /(^|[^*])\*([^*\n]+)\*(?!\*)/g, 
+          function(match, before, content) {
+            return before + "<em>" + content + "</em>";
+          }
+        );
+    
+        // 9) Transforme les liens
+        text = text.replace(/((https?:\/\/|www\.)[^\s]+)/g, function(match) {
+          let url = match.startsWith('http') ? match : 'https://' + match;
+          return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${match}</a>`;
+        });
+    
+        // 10) Découpe le texte en paragraphes via le délimiteur "|||"
+        let paragraphs = text
+          .split("|||")
+          .map(p => p.trim())
+          .filter(p => p.length > 0);
+    
+        // Pour chaque paragraphe, on remplace le contenu entre crochets par <strong>
+        paragraphs = paragraphs.map(p => p.replace(/\[([^\]]+)\]/g, "<strong>$1</strong>"));
+    
+        // 11) Retourne le HTML, chaque paragraphe dans un <p>
+        let formatted = paragraphs
+          .map(p => `<p style="margin:8px 0;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;max-width:100%;">${p}</p>`)
+          .join("");
+    
+        // 12) Encapsule dans un conteneur .bot-content
+        formatted = `<div class="bot-content" style="max-width:100%;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;">${formatted}</div>`;
+    
+        // 13) Évite qu'une ponctuation se retrouve en début de ligne
+        formatted = formatted.replace(/(\w)\s+([,.!?;:]+)/g, "$1&nbsp;$2");
+    
+        return formatted;
+    }
+
+    // Sauvegarde l'historique de conversation dans le localStorage
     function saveChatHistory(history) {
         localStorage.setItem('chatHistory', JSON.stringify(history));
     }
@@ -862,7 +955,6 @@ document.body.appendChild(script);
         const popup = shadowRoot.getElementById("custom-popup-window");
         if (savedState === "open") {
             popup.style.display = "block";
-            // Mettez à jour le bouton toggle si besoin
             const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
             toggleButton.classList.add("red");
         } else {
@@ -874,23 +966,86 @@ document.body.appendChild(script);
         const chatBody = shadowRoot.getElementById("custom-popup-body");
         // Efface le contenu actuel
         chatBody.innerHTML = "";
+        
+        // Variable pour stocker la date du dernier message bot affiché
+        let lastBotDate = "";
+        
         history.forEach(message => {
-            // Créez un élément pour chaque message
-            const msgDiv = document.createElement("div");
-            msgDiv.className = message.sender === "user" ? "message user" : "message bot";
-            // Vous pouvez ajouter l'heure dans une petite balise si souhaité
-            const timeSpan = document.createElement("span");
-            timeSpan.style.fontSize = "10px";
-            timeSpan.style.opacity = "0.6";
-            timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
-            msgDiv.textContent = message.text;
-            msgDiv.appendChild(timeSpan);
-            chatBody.appendChild(msgDiv);
+            if (message.sender === "bot") {
+                // Formatage de la date du message (ex: "Mardi 1 avril")
+                let msgDate = new Date(message.timestamp);
+                let dateString = msgDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+                // Mettre en majuscule la première lettre
+                dateString = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+                
+                // Si cette date est différente de la dernière affichée, afficher la date
+                if (dateString !== lastBotDate) {
+                    const dateElement = document.createElement("div");
+                    // On peut définir une classe CSS ou appliquer des styles inline
+                    dateElement.className = "bot-date";
+                    dateElement.style.fontSize = "10px";
+                    dateElement.style.fontWeight = "bold";
+                    dateElement.style.marginBottom = "5px";
+                    dateElement.style.marginTop = "10px";
+                    // Ajoute la date dans le container (ici on l'insère avant le prochain message bot)
+                    chatBody.appendChild(dateElement);
+                    dateElement.textContent = dateString;
+                    lastBotDate = dateString;
+                }
+                
+                // Créez la structure habituelle pour le message du bot
+                const botName = document.createElement("div");
+                botName.className = "bot-name";
+                botName.textContent = "Cléa";
+                
+                const botMessageWrapper = document.createElement("div");
+                botMessageWrapper.className = "message bot-container";
+                
+                const botLogo = document.createElement("img");
+                botLogo.src = "https://pjbrx.github.io/Clea_agent_conversationnel/ExpansionTV/logo_ExpansionTV.png";
+                botLogo.alt = "Logo ExpansionTV";
+                botLogo.className = "bot-logo";
+                
+                const botMessageContainer = document.createElement("div");
+                botMessageContainer.className = "message bot";
+                botMessageContainer.innerHTML = formatResponse(message.text);
+                
+                // Ajoute l'heure du message dans un span
+                const timeSpan = document.createElement("span");
+                timeSpan.style.fontSize = "10px";
+                timeSpan.style.opacity = "0.6";
+                timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
+                botMessageContainer.appendChild(timeSpan);
+                
+                botMessageWrapper.appendChild(botLogo);
+                botMessageWrapper.appendChild(botMessageContainer);
+                
+                // Ajoute le nom du bot et le message dans le container
+                chatBody.appendChild(botName);
+                chatBody.appendChild(botMessageWrapper);
+            } else { // Pour les messages utilisateur
+                const msgDiv = document.createElement("div");
+                msgDiv.className = "message user";
+                msgDiv.innerHTML = formatResponse(message.text);
+                
+                const timeSpan = document.createElement("span");
+                timeSpan.style.fontSize = "10px";
+                timeSpan.style.opacity = "0.6";
+                timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
+                msgDiv.appendChild(timeSpan);
+                
+                chatBody.appendChild(msgDiv);
+            }
         });
         
         // Restaure la position de défilement
         chatBody.scrollTop = loadChatScroll();
+        
+        // Applique la nouvelle taille de la zone de chat
+        chatBody.style.maxHeight = "calc(100% - 180px)";
     }
+    
+    
   
     function setupWidgetEvents() {
         restoreChat();
@@ -954,86 +1109,6 @@ document.body.appendChild(script);
                 return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`;
             });
         }
-
-        function formatResponse(text) {
-            // 1) Supprime la chaîne "```markdown" pour éviter qu'elle apparaisse
-            text = text.replace(/```markdown/g, "```");
-        
-            // 2) Supprime tous les emojis courants (Unicode)
-            text = text.replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "");
-        
-            // 3) Transforme les blocs de code
-            text = text.replace(
-              /```([\s\S]*?)```/g,
-              "<pre style='white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;max-width:100%;'><code>$1</code></pre>"
-            );
-        
-            // 4) Transforme les titres (H1 à H6)
-            text = text.replace(/^######\s*(.+)$/gm, "<h6 style='margin:8px 0;word-break:break-word;'>$1</h6>");
-            text = text.replace(/^#####\s*(.+)$/gm, "<h5 style='margin:8px 0;word-break:break-word;'>$1</h5>");
-            text = text.replace(/^####\s*(.+)$/gm, "<h4 style='margin:8px 0;word-break:break-word;'>$1</h4>");
-            text = text.replace(/^###\s*(.+)$/gm, "<h3 style='margin:8px 0;word-break:break-word;'>$1</h3>");
-            text = text.replace(/^##\s*(.+)$/gm, "<h2 style='margin:8px 0;word-break:break-word;'>$1</h2>");
-            text = text.replace(/^#\s*(.+)$/gm, "<h1 style='margin:8px 0;word-break:break-word;'>$1</h1>");
-        
-            // 5) Transforme les citations
-            text = text.replace(
-              /^>\s*(.+)$/gm,
-              "<blockquote style='margin:8px 0;padding-left:10px;border-left:3px solid #ccc;word-break:break-word;'>$1</blockquote>"
-            );
-        
-            // 6) Transforme les lignes commençant par * ou - en listes à puces
-            //    On autorise les espaces avant l'astérisque/tiret et après.
-            //    Chaque bloc de lignes sera converti en <ul> avec des <li>.
-            text = text.replace(/((?:^[ \t]*[-*][ \t]+.+\n?)+)/gm, function(match) {
-              const items = match
-                .split(/\r?\n/)
-                .filter(item => item.trim() !== "")
-                .map(item => item.replace(/^[ \t]*[-*][ \t]+/, "<li style='word-break:break-word;'>") + "</li>")
-                .join("");
-              return "<ul style='margin:8px 0;padding-left:20px;'>" + items + "</ul>";
-            });
-        
-            // 7) Transforme le texte en gras avec **texte**
-            text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-        
-            // 8) Transforme le texte en italique avec *texte* 
-            //    (sauf si l’astérisque est en début de ligne, car c'est déjà géré comme puce)
-            text = text.replace(
-              /(^|[^*])\*([^*\n]+)\*(?!\*)/g, 
-              function(match, before, content) {
-                return before + "<em>" + content + "</em>";
-              }
-            );
-        
-            // 9) Transforme les liens
-            text = text.replace(/((https?:\/\/|www\.)[^\s]+)/g, function(match) {
-              let url = match.startsWith('http') ? match : 'https://' + match;
-              return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${match}</a>`;
-            });
-        
-            // 10) Découpe le texte en paragraphes via le délimiteur "|||"
-            let paragraphs = text
-              .split("|||")
-              .map(p => p.trim())
-              .filter(p => p.length > 0);
-        
-            // Pour chaque paragraphe, on remplace le contenu entre crochets par <strong>
-            paragraphs = paragraphs.map(p => p.replace(/\[([^\]]+)\]/g, "<strong>$1</strong>"));
-        
-            // 11) Retourne le HTML, chaque paragraphe dans un <p>
-            let formatted = paragraphs
-              .map(p => `<p style="margin:8px 0;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;max-width:100%;">${p}</p>`)
-              .join("");
-        
-            // 12) Encapsule dans un conteneur .bot-content
-            formatted = `<div class="bot-content" style="max-width:100%;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;">${formatted}</div>`;
-        
-            // 13) Évite qu'une ponctuation se retrouve en début de ligne
-            formatted = formatted.replace(/(\w)\s+([,.!?;:]+)/g, "$1&nbsp;$2");
-        
-            return formatted;
-        }
         
                 
         
@@ -1044,6 +1119,7 @@ document.body.appendChild(script);
             if (!messageText) {
                 return;
             }
+            
             let history = loadChatHistory();
             const userMsg = {
                 sender: "user",
