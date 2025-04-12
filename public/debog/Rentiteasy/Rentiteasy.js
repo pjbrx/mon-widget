@@ -871,10 +871,11 @@ document.body.appendChild(script);
         );
     
         // 9) Transforme les liens
-        text = text.replace(/((https?:\/\/|www\.)[^\s]+)/g, function(match) {
-          let url = match.startsWith('http') ? match : 'https://' + match;
-          return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${match}</a>`;
-        });
+        text = text.replace(/(?<!<a href=")((https?:\/\/|www\.)[^\s<]+)(?![^<]*<\/a>)/g, function(match) {
+            let url = match.startsWith('http') ? match : 'https://' + match;
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${match}</a>`;
+          });
+          
     
         // 10) Découpe le texte en paragraphes via le délimiteur "|||"
         let paragraphs = text
@@ -934,47 +935,38 @@ document.body.appendChild(script);
         // Restaure l'état du chat (si "open", affiche la fenêtre)
         const savedState = loadChatState();
         const popup = shadowRoot.getElementById("custom-popup-window");
-        if (savedState === "closed") {
-            popup.style.display = "none";
-        } else {
+        if (savedState === "open") {
             popup.style.display = "block";
             const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
             toggleButton.classList.add("red");
+        } else {
+            popup.style.display = "none";
         }
-        
         // Restaure l'historique de conversation
         const history = loadChatHistory();
         const chatBody = shadowRoot.getElementById("custom-popup-body");
         // Efface le contenu actuel
         chatBody.innerHTML = "";
-        
+
         // Variable pour stocker la date du dernier message bot affiché
         let lastBotDate = "";
-        
         history.forEach(message => {
             if (message.sender === "bot") {
-                // Formatage de la date du message (ex: "Mardi 1 avril")
                 let msgDate = new Date(message.timestamp);
                 let dateString = msgDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-                // Mettre en majuscule la première lettre
                 dateString = dateString.charAt(0).toUpperCase() + dateString.slice(1);
-                
-                // Si cette date est différente de la dernière affichée, afficher la date
                 if (dateString !== lastBotDate) {
                     const dateElement = document.createElement("div");
-                    // On peut définir une classe CSS ou appliquer des styles inline
                     dateElement.className = "bot-date";
                     dateElement.style.fontSize = "10px";
                     dateElement.style.fontWeight = "bold";
                     dateElement.style.marginBottom = "5px";
                     dateElement.style.marginTop = "10px";
-                    // Ajoute la date dans le container (ici on l'insère avant le prochain message bot)
                     chatBody.appendChild(dateElement);
                     dateElement.textContent = dateString;
                     lastBotDate = dateString;
                 }
                 
-                // Créez la structure habituelle pour le message du bot
                 const botName = document.createElement("div");
                 botName.className = "bot-name";
                 botName.textContent = "Cléa";
@@ -991,17 +983,15 @@ document.body.appendChild(script);
                 botMessageContainer.className = "message bot";
                 botMessageContainer.innerHTML = formatResponse(message.text);
                 
-                // Ajoute l'heure du message dans un span
                 const timeSpan = document.createElement("span");
                 timeSpan.style.fontSize = "10px";
                 timeSpan.style.opacity = "0.6";
-                timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
+                timeSpan.textContent = " (" + new Date(message.timestamp).toLocaleTimeString() + ")";
                 botMessageContainer.appendChild(timeSpan);
                 
                 botMessageWrapper.appendChild(botLogo);
                 botMessageWrapper.appendChild(botMessageContainer);
                 
-                // Ajoute le nom du bot et le message dans le container
                 chatBody.appendChild(botName);
                 chatBody.appendChild(botMessageWrapper);
             } else { // Pour les messages utilisateur
@@ -1012,25 +1002,32 @@ document.body.appendChild(script);
                 const timeSpan = document.createElement("span");
                 timeSpan.style.fontSize = "10px";
                 timeSpan.style.opacity = "0.6";
-                timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
+                timeSpan.textContent = " (" + new Date(message.timestamp).toLocaleTimeString() + ")";
                 msgDiv.appendChild(timeSpan);
                 
                 chatBody.appendChild(msgDiv);
             }
         });
-        
+
         // Restaure la position de défilement
         chatBody.scrollTop = loadChatScroll();
-        
+
         // Applique la nouvelle taille de la zone de chat
         chatBody.style.maxHeight = "calc(100% - 180px)";
     }
 
     function setupWidgetEvents() {
-        restoreChat();
-        const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
+        const history = loadChatHistory();
         const popup = shadowRoot.getElementById("custom-popup-window");
+        // Si l'historique n'est pas vide, restaure le chat
+        if (history.length > 0) {
+            restoreChat();
+        }
+        else{popup.style.display = "none"}
+        const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
+        
         // Fermer le popup au démarrage
+        //popup.style.display = "none";
 
         const toggleIcon = shadowRoot.getElementById("toggle-icon");
         const textarea = shadowRoot.getElementById("custom-popup-textarea");
@@ -1246,9 +1243,9 @@ document.body.appendChild(script);
                 if (index === text.length) {
                     clearInterval(timer);
                     // On transforme d'abord le texte pour rendre les liens cliquables
-                    const linkified = linkify(finalText);
+                    // const linkified = linkify(finalText);
                     // Puis on applique la mise en forme en paragraphes
-                    const formatted = formatResponse(linkified);
+                    const formatted = formatResponse(finalText);
                     element.innerHTML = formatted;
                 }
             }, interval);
@@ -1295,14 +1292,14 @@ document.body.appendChild(script);
         });
 
         shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
+            // Masquer le popup
             shadowRoot.getElementById("custom-popup-window").style.display = "none";
-        });
-        shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
-            shadowRoot.getElementById("custom-popup-window").style.display = "none";
+            // Mettre à jour l'état sauvegardé
+            saveChatState("closed");
             // Rétablir l'état du bouton de chat
             const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
             toggleButton.classList.remove("red");
-            // Vous pouvez aussi modifier l'image si besoin, de la même manière que dans l'événement "click" du toggleButton
+            // Optionnel : Modifier l'image du bouton si nécessaire
             const toggleIcon = shadowRoot.getElementById("toggle-icon");
             toggleIcon.src = "https://pjbrx.github.io/Clea_agent_conversationnel/logo_chat_final.webp";
         });
