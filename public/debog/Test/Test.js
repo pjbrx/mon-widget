@@ -1,4 +1,4 @@
-// ========= ADAPTER LES LIGNES 240-241-327 (pour le vocal) ========= \\
+// ========= ADAPTER LES LIGNES 246-247-333 (pour le vocal) ========= \\
 // 1) Créer le conteneur et l'ajouter au body
 const widgetContainer = document.createElement('div');
 document.body.appendChild(widgetContainer);
@@ -243,8 +243,8 @@ const selectedAvatars = shuffleArray(utilisateurs).slice(0, 3);
 const widgetHTML = `
     <!-- Conteneur du widget avec SVG -->
     <div class="floating-widget-container">
-        <a href="https://www.rentiteasy.be/fr" class="widget-image-link">
-            <img src="https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_rentiteasy.png" alt="Logo Rentiteasy" class="widget-image">
+        <a href="https://www.expansiontv.be/" class="widget-image-link">
+            <img src="https://pjbrx.github.io/Clea_agent_conversationnel/ExpansionTV/logo_ExpansionTV.png" alt="Logo ExpansionTV" class="widget-image">
         </a>
         <svg class="widget-shape" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
             <!-- Forme principale avec trou circulaire -->
@@ -258,12 +258,6 @@ const widgetHTML = `
                 L10.5,125
                 A8,8 0 0 1 2.5,117
                 Z
-
-                M 117,72.5
-                m -17.5,0
-                a 17.5,17.5 0 1,0 35,0
-                a 17.5,17.5 0 1,0 -35,0
-
             " fill="rgb(255, 255, 255)" stroke="black" stroke-width="0
             " fill-rule="evenodd"/>
 
@@ -279,7 +273,9 @@ const widgetHTML = `
                 A22.5,22 0 0 1 85,73
                 Z
             " fill="none" stroke="black" stroke-width="1"/>
-            <text x="48%" y="115" font-family="Arial, sans-serif" font-size="10" fill="rgba(0, 0, 0, 0.6)" text-anchor="middle" pointer-events="auto">
+
+            <!-- Crédit en bas du widget -->
+            <text x="55%" y="119" font-family="Arial, sans-serif" font-size="10" fill="rgba(0, 0, 0, 0.6)" text-anchor="middle" pointer-events="auto">
                 Conçu avec soin par 
                 <tspan font-weight="bold" fill="#007bff" text-decoration="underline">
                     <a href="https://www.linkedin.com/company/clea.assistant/posts/?feedView=all" target="_blank" style="cursor: pointer; pointer-events: auto; text-decoration: underline; fill: #007bff;">
@@ -294,7 +290,7 @@ const widgetHTML = `
     <div id="popup-message" class="popup-container">
         <div class="popup-content">
             <span id="close-popup" class="popup-close">&times;</span>
-            <p class="popup-text">Besoin d'aide ?</p>
+            <p class="popup-text">Une Question ?</p>
             <p class="popup-text-normal">Discutez avec notre assistant IA</p>
             <div class="popup-header">
                 <div>
@@ -330,16 +326,25 @@ shadowRoot.getElementById("close-popup").addEventListener("click", function() {
 
 // Widget ElevenLabs
 const elevenLabsWidget = document.createElement("elevenlabs-convai");
-elevenLabsWidget.setAttribute("agent-id", "vAVWpiIxaI6uJPpPzRy4");
+elevenLabsWidget.setAttribute("agent-id", "lrlluI50KDXyFTccRXwv");
 document.body.appendChild(elevenLabsWidget);
 
 const script = document.createElement("script");
 script.src = "https://elevenlabs.io/convai-widget/index.js";
 script.async = true;
 script.type = "text/javascript";
+script.onload = () => {
+    console.log("✅ ElevenLabs SDK chargé avec succès !");
+    // Ici tu peux déclencher ton setup ou activer le bouton d’appel vocal
+};
+script.onerror = () => {
+    console.error("❌ Échec du chargement du SDK ElevenLabs.");
+};
 document.body.appendChild(script);
 
+
 (function() {
+    let conversationInstance = null;
     // Vérification pour éviter les doublons si le script est chargé plusieurs fois
     if (shadowRoot.querySelector('.custom-popup-container')) {
         return;
@@ -359,21 +364,24 @@ document.body.appendChild(script);
         // Combinaison de ces éléments pour créer un ID unique
         return `conv_${timestamp}_${randomPart}_${browserInfo}`;
     };
+    // Après l'injection du CSS et avant la création du widget
+
+// Fonction pour récupérer ou générer un ID de conversation persistant
+function getConversationId() {
+    let id = localStorage.getItem("conversationId");
+    if (!id) {
+        const timestamp = new Date().getTime();
+        const randomPart = Math.random().toString(36).substring(2, 15);
+        const browserInfo = navigator.userAgent.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
+        id = `conv_${timestamp}_${randomPart}_${browserInfo}`;
+        localStorage.setItem("conversationId", id);
+    }
+    return id;
+    }
+  // Utilisation de la fonction pour obtenir l'ID de conversation
+    const conversationId = getConversationId();
 
     // Créer et stocker l'ID de conversation
-    function getConversationId() {
-        let id = localStorage.getItem("conversationId");
-        if (!id) {
-            const timestamp = new Date().getTime();
-            const randomPart = Math.random().toString(36).substring(2, 15);
-            const browserInfo = navigator.userAgent.replace(/[^a-zA-Z0-9]/g, '').substring(0, 10);
-            id = `conv_${timestamp}_${randomPart}_${browserInfo}`;
-            localStorage.setItem("conversationId", id);
-        }
-        return id;
-        }
-      // Utilisation de la fonction pour obtenir l'ID de conversation
-        const conversationId = getConversationId();
 
     const styles = `
         .custom-popup-container {
@@ -421,6 +429,14 @@ document.body.appendChild(script);
             right: 70px;
             z-index: 1005;
         }
+
+        .custom-call-button-position {
+            position: fixed;
+            bottom: 48px;
+            right: 120px; /* décalé à gauche du bouton chat */
+            z-index: 1005;
+        }
+
 
 
         .custom-popup-window {
@@ -704,13 +720,24 @@ document.body.appendChild(script);
             color: black;
             padding: 12px;
             border-radius: 10px;
+            white-space: normal;
             /* max-width: 100%; déjà défini par le container */
             word-wrap: break-word;
+            overflow-wrap: break-word;
+            overflow: visible; 
             display: flex;
             flex-direction: column;
             position: relative;
             flex: 1; /* Prend toute la largeur restante */
         }
+        .bot-content {
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            /* Vous pouvez ajouter ici d'autres propriétés héritées de .message.bot si nécessaire */
+        }
+
 
         /* Nouvelle classe pour le conteneur du textarea et du bouton d'envoi */
         .textarea-container {
@@ -726,6 +753,7 @@ document.body.appendChild(script);
             margin: 10px 0;
             line-height: 1.5;
             font-size: 14px;
+            white-space: pre-wrap;
         }
         .paragraph-container a {
             text-decoration: underline;
@@ -763,6 +791,9 @@ document.body.appendChild(script);
     widgetContainer.className = 'custom-popup-container';
     
     widgetContainer.innerHTML = `
+    <button id="custom-call-toggle" class="custom-popup-button custom-call-button-position" aria-label="Appel vocal Cléa">
+        <img src=debog/Test/call.png alt="Call Icon">
+    </button>
     <button id="custom-popup-toggle" class="custom-popup-button custom-popup-button-position" aria-label="Ouvrir le chat Cléa">
         <img id="toggle-icon" src="https://pjbrx.github.io/Clea_agent_conversationnel/logo_chat_final.webp" alt="Icône Cléa">
     </button>
@@ -792,7 +823,7 @@ document.body.appendChild(script);
                 <div class="bot-name">Cléa</div>
                 
                 <div class="message bot-container">
-                    <img src="https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_rentiteasy.png" alt="Logo Rentiteasy" class="bot-logo">
+                    <img src="https://pjbrx.github.io/Clea_agent_conversationnel/ExpansionTV/logo_ExpansionTV.png" alt="Logo ExpansionTV" class="bot-logo">
                     <div class="message bot">
                         <span>Bonjour ! Comment puis-je vous aider ?</span>
                     </div>
@@ -819,94 +850,219 @@ document.body.appendChild(script);
     
     shadowRoot.appendChild(widgetContainer);
 
+    // ========= AJOUT CONSENTEMENT UTILISATEUR ========= 
+function hasAcceptedConsent() {
+    return localStorage.getItem("chatDataConsent") === "accepted";
+}
+
+function showConsentModal(callback) {
+    if (document.getElementById("consent-modal-clea")) return;
+    const modalWrapper = document.createElement("div");
+    modalWrapper.id = "consent-modal-clea"; 
+    modalWrapper.style.position = "fixed";
+    modalWrapper.style.bottom = "110px";
+    modalWrapper.style.right = "30px";
+    modalWrapper.style.zIndex = "10012";
+
+    const shadow = modalWrapper.attachShadow({ mode: "open" });
+
+    const styles = `
+        .consent-box {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+            width: 300px;
+            padding: 18px;
+            font-family: Arial, sans-serif;
+            animation: fadeIn 0.3s ease;
+        }
+
+        h4 {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        p {
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        button {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+        }
+
+        #rejectConsent {
+            background: transparent;
+            border: 1px solid #ccc;
+            color: #333;
+        }
+
+        #acceptConsent {
+            background: #007bff;
+            color: white;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            color: black;
+        }
+
+        .popup-close:hover {
+            color: red;
+        }
+
+        .top-bar {
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+
+    const styleTag = document.createElement("style");
+    styleTag.textContent = styles;
+    shadow.appendChild(styleTag);
+
+    const modal = document.createElement("div");
+    modal.className = "consent-box";
+    modal.innerHTML = `
+        <div class="top-bar">
+            <span class="popup-close" id="closeConsent">&times;</span>
+            <h4>Conditions d'utilisation</h4>
+        </div>
+        <p>
+            Pour utiliser ce service, certaines données personnelles (par exemple : prénom, adresse e-mail, numéro de téléphone) peuvent être collectées et traitées afin de permettre à ExpansionTV de vous recontacter et d’assurer le suivi de votre demande. Ces données ne sont pas revendues, ni utilisées à des fins de prospection commerciale. Elles sont exclusivement utilisées dans le cadre de votre sollicitation. Vous pouvez accepter ou refuser librement cette utilisation.
+        </p>
+        <div class="buttons">
+            <button id="rejectConsent">Refuser</button>
+            <button id="acceptConsent">Accepter</button>
+        </div>
+    `;
+
+    shadow.appendChild(modal);
+    document.body.appendChild(modalWrapper);
+
+    const removeModal = () => {
+        const existing = document.getElementById("consent-modal-clea");
+        if (existing) document.body.removeChild(existing);
+    };
+
+    shadow.getElementById("acceptConsent").addEventListener("click", () => {
+        localStorage.setItem("chatDataConsent", "accepted");
+        document.body.removeChild(modalWrapper);
+        callback(true);
+    });
+
+    shadow.getElementById("rejectConsent").addEventListener("click", () => {
+        localStorage.setItem("chatDataConsent", "rejected");
+        document.body.removeChild(modalWrapper);
+        callback(false);
+    });
+
+    shadow.getElementById("closeConsent").addEventListener("click", () => {
+        document.body.removeChild(modalWrapper);
+        callback(false);
+    });
+}
+
+
+
+
+
     function formatResponse(text) {
-        // 1) Supprime la chaîne "```markdown" pour éviter qu'elle apparaisse
+        // 1) Supprime la chaîne "```markdown"
         text = text.replace(/```markdown/g, "```");
         text = text.trim();
-        // 2) Supprime tous les emojis courants (Unicode)
+
+        // 2) Supprime les emojis
         text = text.replace(/[\u{1F300}-\u{1F5FF}\u{1F600}-\u{1F64F}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu, "");
-    
-        // 3) Transforme les blocs de code
+
+        // 3) Blocs de code
         text = text.replace(
-          /```([\s\S]*?)```/g,
-          "<pre style='white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;max-width:100%;'><code>$1</code></pre>"
+            /```([\s\S]*?)```/g,
+            "<pre style='font-family: Arial, sans-serif; white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;max-width:100%;'><code>$1</code></pre>"
         );
-    
-        // 4) Transforme les titres (H1 à H6)
-        text = text.replace(/^######\s*(.+)$/gm, "<h6 style='margin:8px 0;word-break:break-word;'>$1</h6>");
-        text = text.replace(/^#####\s*(.+)$/gm, "<h5 style='margin:8px 0;word-break:break-word;'>$1</h5>");
-        text = text.replace(/^####\s*(.+)$/gm, "<h4 style='margin:8px 0;word-break:break-word;'>$1</h4>");
-        text = text.replace(/^###\s*(.+)$/gm, "<h3 style='margin:8px 0;word-break:break-word;'>$1</h3>");
-        text = text.replace(/^##\s*(.+)$/gm, "<h2 style='margin:8px 0;word-break:break-word;'>$1</h2>");
-        text = text.replace(/^#\s*(.+)$/gm, "<h1 style='margin:8px 0;word-break:break-word;'>$1</h1>");
-    
-        // 5) Transforme les citations
+
+        // 4) Titres H1 à H6
+        text = text.replace(/^######\s*(.+)$/gm, "<h6 style='font-family: Arial, sans-serif; margin:8px 0;word-break:break-word;'>$1</h6>");
+        text = text.replace(/^#####\s*(.+)$/gm, "<h5 style='font-family: Arial, sans-serif; margin:8px 0;word-break:break-word;'>$1</h5>");
+        text = text.replace(/^####\s*(.+)$/gm, "<h4 style='font-family: Arial, sans-serif; margin:8px 0;word-break:break-word;'>$1</h4>");
+        text = text.replace(/^###\s*(.+)$/gm, "<h3 style='font-family: Arial, sans-serif; margin:8px 0;word-break:break-word;'>$1</h3>");
+        text = text.replace(/^##\s*(.+)$/gm, "<h2 style='font-family: Arial, sans-serif; margin:0; word-break:break-word;'>$1</h2>");
+        text = text.replace(/^#\s*(.+)$/gm, "<h1 style='font-family: Arial, sans-serif; margin:8px 0;word-break:break-word;'>$1</h1>");
+
+        // 5) Citations
         text = text.replace(
-          /^>\s*(.+)$/gm,
-          "<blockquote style='margin:8px 0;padding-left:10px;border-left:3px solid #ccc;word-break:break-word;'>$1</blockquote>"
+            /^>\s*(.+)$/gm,
+            "<blockquote style='font-family: Arial, sans-serif; margin:8px 0;padding-left:10px;border-left:3px solid #ccc;word-break:break-word;'>$1</blockquote>"
         );
-    
-        // 6) Transforme les lignes commençant par * ou - en listes à puces
-        //    On autorise les espaces avant l'astérisque/tiret et après.
-        //    Chaque bloc de lignes sera converti en <ul> avec des <li>.
-        text = text.replace(/((?:^[ \t]*[-*][ \t]+.+\n?)+)/gm, function(match) {
+
+        // 6) Listes à puces
+        text = text.replace(/((?:^[ \t]*[-*][ \t]+.+\n?)+)/gm, function (match) {
             const items = match
-            .split(/\r?\n/)
-            .filter(item => item.trim() !== "")
-            .map(item => item.replace(/^[ \t]*[-*][ \t]+/, "<li style='word-break:break-word;'>") + "</li>")
-            .join("");
-        return "<ul style='margin:8px 0;padding-left:20px;'>" + items + "</ul>";
+                .split(/\r?\n/)
+                .filter(item => item.trim() !== "")
+                .map(item => item.replace(/^[ \t]*[-*][ \t]+/, "<li style='font-family: Arial, sans-serif; word-break:break-word;'>") + "</li>")
+                .join("");
+            return "<ul style='font-family: Arial, sans-serif; margin:8px 0;padding-left:20px;'>" + items + "</ul>";
         });
-    
-        // 7) Transforme le texte en gras avec **texte**
+
+        // 7) Texte en gras
         text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
-    
-        // 8) Transforme le texte en italique avec *texte* 
-        //    (sauf si l’astérisque est en début de ligne, car c'est déjà géré comme puce)
-        text = text.replace(
-            /(^|[^*])\*([^*\n]+)\*(?!\*)/g, 
-            function(match, before, content) {
+
+        // 8) Italique
+        text = text.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, function (match, before, content) {
             return before + "<em>" + content + "</em>";
-        }
-        );
-    
-        // 9) Transforme les liens
-        text = text.replace(/(?<!<a href=")((https?:\/\/|www\.)[^\s<]+)(?![^<]*<\/a>)/g, function(match) {
-            let url = match.startsWith('http') ? match : 'https://' + match;
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="word-break:break-all;">${match}</a>`;
         });
-        
-    
-        // 10) Découpe le texte en paragraphes via le délimiteur "|||"
+
+        // 9) Liens
+        text = text.replace(/((https?:\/\/|www\.)[^\s]+)/g, function (match) {
+            let url = match.startsWith('http') ? match : 'https://' + match;
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="font-family: Arial, sans-serif; word-break:break-all;">${match}</a>`;
+        });
+
+        // 10) Paragraphes
         let paragraphs = text
-        .split("|||")
-        .map(p => p.trim())
-        .filter(p => p.length > 0);
-    
-        // Pour chaque paragraphe, on remplace le contenu entre crochets par <strong>
+            .split("|||")
+            .map(p => p.trim())
+            .filter(p => p.length > 0);
+
         paragraphs = paragraphs.map(p => p.replace(/\[([^\]]+)\]/g, "<strong>$1</strong>"));
-    
-        // 11) Retourne le HTML, chaque paragraphe dans un <p>
+
         let formatted = paragraphs
-        .map(p => {
-            // Corrige l'affichage du chiffre + titre sur une ligne
-            p = p.replace(/^(\d+)\.\s*<strong>(.+?)<\/strong>/, (_, num, title) => `<strong>${num}. ${title}</strong>`);
-        
-            // Supprime les sauts de ligne indésirables après "URL:"
-            p = p.replace(/(URL:)\s*<a /g, '$1 <a ');
-        
-            return `<p style="margin:4px 0;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;max-width:100%;">${p}</p>`;
-        })        
+        .map(p => `<p style="font-family: Arial, sans-serif; font-size: 17px; line-height: 1.6; margin:0 0 8px 0; word-break:break-word; overflow-wrap:break-word; white-space:pre-wrap; max-width:100%;">${p}</p>`)
         .join("");
-    
-        // 12) Encapsule dans un conteneur .bot-content
-        formatted = `<div class="bot-content" style="max-width:100%;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap;">${formatted}</div>`;
-    
-        // 13) Évite qu'une ponctuation se retrouve en début de ligne
+
+
+        // 11) Conteneur global
+        formatted = `<div class="bot-content" style="font-family: Arial, sans-serif; font-size: 17px; max-width:100%; word-break:break-word; overflow-wrap:break-word; white-space:pre-wrap;">${formatted}</div>`;
+
+        // 12) Ponctuation
         formatted = formatted.replace(/(\w)\s+([,.!?;:]+)/g, "$1&nbsp;$2");
-    
+
         return formatted;
     }
+
 
     // Sauvegarde l'historique de conversation dans le localStorage
     function saveChatHistory(history) {
@@ -923,6 +1079,8 @@ document.body.appendChild(script);
         const sessionMessages = sessionStorage.getItem("sessionUserMessages");
         return sessionMessages === "true";
     }
+    
+    
     
     // Sauvegarde l'état du chat (open/closed)
     function saveChatState(state) {
@@ -1071,6 +1229,8 @@ document.body.appendChild(script);
                 s.style.color = i < value ? '#ffc107' : '#ccc';
             });
         }
+
+    
         shadow.getElementById('close-feedback').addEventListener('click', () => {
             document.body.removeChild(widgetContainer);
             
@@ -1121,6 +1281,8 @@ document.body.appendChild(script);
         });
     }
     
+    
+    
     // Restaure l'état du chat
     function loadChatState() {
         return localStorage.getItem('chatState') || 'closed';
@@ -1147,31 +1309,40 @@ document.body.appendChild(script);
         } else {
             popup.style.display = "none";
         }
+        
         // Restaure l'historique de conversation
         const history = loadChatHistory();
         const chatBody = shadowRoot.getElementById("custom-popup-body");
         // Efface le contenu actuel
         chatBody.innerHTML = "";
-
+        
         // Variable pour stocker la date du dernier message bot affiché
         let lastBotDate = "";
+        
         history.forEach(message => {
             if (message.sender === "bot") {
+                // Formatage de la date du message (ex: "Mardi 1 avril")
                 let msgDate = new Date(message.timestamp);
                 let dateString = msgDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+                // Mettre en majuscule la première lettre
                 dateString = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+                
+                // Si cette date est différente de la dernière affichée, afficher la date
                 if (dateString !== lastBotDate) {
                     const dateElement = document.createElement("div");
+                    // On peut définir une classe CSS ou appliquer des styles inline
                     dateElement.className = "bot-date";
                     dateElement.style.fontSize = "10px";
                     dateElement.style.fontWeight = "bold";
                     dateElement.style.marginBottom = "5px";
                     dateElement.style.marginTop = "10px";
+                    // Ajoute la date dans le container (ici on l'insère avant le prochain message bot)
                     chatBody.appendChild(dateElement);
                     dateElement.textContent = dateString;
                     lastBotDate = dateString;
                 }
                 
+                // Créez la structure habituelle pour le message du bot
                 const botName = document.createElement("div");
                 botName.className = "bot-name";
                 botName.textContent = "Cléa";
@@ -1180,7 +1351,7 @@ document.body.appendChild(script);
                 botMessageWrapper.className = "message bot-container";
                 
                 const botLogo = document.createElement("img");
-                botLogo.src = "https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_rentiteasy.png";
+                botLogo.src = "https://pjbrx.github.io/Clea_agent_conversationnel/ExpansionTV/logo_ExpansionTV.png";
                 botLogo.alt = "Logo ExpansionTV";
                 botLogo.className = "bot-logo";
                 
@@ -1188,15 +1359,17 @@ document.body.appendChild(script);
                 botMessageContainer.className = "message bot";
                 botMessageContainer.innerHTML = formatResponse(message.text);
                 
+                // Ajoute l'heure du message dans un span
                 const timeSpan = document.createElement("span");
                 timeSpan.style.fontSize = "10px";
                 timeSpan.style.opacity = "0.6";
-                timeSpan.textContent = " (" + new Date(message.timestamp).toLocaleTimeString() + ")";
+                timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
                 botMessageContainer.appendChild(timeSpan);
                 
                 botMessageWrapper.appendChild(botLogo);
                 botMessageWrapper.appendChild(botMessageContainer);
                 
+                // Ajoute le nom du bot et le message dans le container
                 chatBody.appendChild(botName);
                 chatBody.appendChild(botMessageWrapper);
             } else { // Pour les messages utilisateur
@@ -1207,20 +1380,22 @@ document.body.appendChild(script);
                 const timeSpan = document.createElement("span");
                 timeSpan.style.fontSize = "10px";
                 timeSpan.style.opacity = "0.6";
-                timeSpan.textContent = " (" + new Date(message.timestamp).toLocaleTimeString() + ")";
+                timeSpan.textContent = ` (${new Date(message.timestamp).toLocaleTimeString()})`;
                 msgDiv.appendChild(timeSpan);
                 
                 chatBody.appendChild(msgDiv);
             }
         });
-
+        
         // Restaure la position de défilement
         chatBody.scrollTop = loadChatScroll();
-
+        
         // Applique la nouvelle taille de la zone de chat
         chatBody.style.maxHeight = "calc(100% - 180px)";
     }
-
+    
+    
+  
     function setupWidgetEvents() {
         const history = loadChatHistory();
         const popup = shadowRoot.getElementById("custom-popup-window");
@@ -1230,9 +1405,32 @@ document.body.appendChild(script);
         }
         else{popup.style.display = "none"}
         const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
+        const callButton = shadowRoot.getElementById("custom-call-toggle");
+        callButton.addEventListener("click", async function () {
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true });
         
-        // Fermer le popup au démarrage
-        //popup.style.display = "none";
+                const conversation = await window.ElevenLabs.Conversation.startSession({
+                    agentId: "uY98U5YsfR4bGJgXlAKE", // ton agent
+                    onConnect: () => console.log("✅ Connecté à l'agent"),
+                    onDisconnect: () => console.log("🔴 Déconnecté"),
+                    onError: (err) => console.error("Erreur :", err),
+                    onMessage: (msg) => console.log("📥 Message :", msg.message),
+                    onModeChange: (mode) => console.log("Mode :", mode.mode),
+                    onStatusChange: (status) => console.log("Statut :", status.status),
+                });
+        
+                console.log("🎙️ Conversation démarrée avec ID :", conversation.getId());
+        
+                // Stocke cette instance si tu veux pouvoir faire conversation.endSession() plus tard
+                window.activeConversation = conversation;
+            } catch (error) {
+                console.error("Impossible de démarrer la conversation vocale :", error);
+            }
+        });
+        
+        
+
 
         const toggleIcon = shadowRoot.getElementById("toggle-icon");
         const textarea = shadowRoot.getElementById("custom-popup-textarea");
@@ -1268,54 +1466,78 @@ document.body.appendChild(script);
         });
         
         toggleButton.addEventListener("click", function () {
-            const popup = shadowRoot.getElementById("custom-popup-window");
-        
-            if (popup.style.display === "block") {
-                popup.style.display = "none";
-                toggleButton.classList.remove("red");
-                saveChatState("closed");
-        
-                // → Si l'utilisateur a envoyé un message durant cette session, on affiche la fenêtre de feedback
-                if (userHasSentMessageThisSession()) {
-                    showFeedbackWindow();
-                }
-        
-                // → S'il y a déjà une fenêtre de feedback visible, on capture et envoie les données, puis on supprime
-                const feedbackWidgetWrapper = document.querySelector("div[style*='z-index: 10011']");
-                if (feedbackWidgetWrapper && feedbackWidgetWrapper.shadowRoot) {
-                    const feedbackShadow = feedbackWidgetWrapper.shadowRoot;
-                    const comment = feedbackShadow.querySelector("#feedback-comment").value.trim();
-                    const rating = [...feedbackShadow.querySelectorAll("#feedback-stars span")]
-                        .filter(star => star.style.color === "rgb(255, 193, 7)")
-                        .length;
-        
-                    if (comment || rating > 0) {
-                        const feedback = {
-                            rating,
-                            comment,
-                            page: window.location.href,
-                            timestamp: new Date().toISOString(),
-                            userAgent: navigator.userAgent,
-                        };
-
-                        fetch("https://clea.app.n8n.cloud/webhook/feedback", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(feedback)
-                        });
+            if (hasAcceptedConsent()) {
+                const popup = shadowRoot.getElementById("custom-popup-window");
+                if (popup.style.display === "block") {
+                    popup.style.display = "none";
+                    toggleButton.classList.remove("red");
+                    saveChatState("closed");
+                    if (userHasSentMessageThisSession()) {
+                        showFeedbackWindow();
                     }
-        
-                    feedbackWidgetWrapper.remove();
-                    sessionStorage.setItem("feedbackGiven", "true");
+                    
+                } else {
+                    popup.style.display = "block";
+                    toggleButton.classList.add("red");
+                    saveChatState("open");
+                    // Vérifie si une fenêtre de feedback existe dans le DOM principal
+                    const feedbackWidgetWrapper = document.querySelector("div[style*='z-index: 10011']"); // wrapper contenant le shadowRoot du feedback
+                    if (feedbackWidgetWrapper && feedbackWidgetWrapper.shadowRoot) {
+                        const feedbackShadow = feedbackWidgetWrapper.shadowRoot;
+                        const comment = feedbackShadow.querySelector("#feedback-comment").value.trim();
+                        const rating = [...feedbackShadow.querySelectorAll("#feedback-stars span")]
+                            .filter(star => star.style.color === "rgb(255, 193, 7)")
+                            .length;
+
+                        if (comment || rating > 0) {
+                            const feedback = {
+                                rating,
+                                comment,
+                                page: window.location.href,
+                                timestamp: new Date().toISOString(),
+                                userAgent: navigator.userAgent,
+                            };
+
+                            fetch("https://clea.app.n8n.cloud/webhook/feedback", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify(feedback)
+                            });
+                        }
+
+                        // Supprime la fenêtre de feedback du DOM
+                        feedbackWidgetWrapper.remove();
+                        sessionStorage.setItem("feedbackGiven", "true");
+                    }
+
                 }
-        
             } else {
-                popup.style.display = "block";
-                toggleButton.classList.add("red");
-                saveChatState("open");
+                showConsentModal((accepted) => {
+                    if (accepted) {
+                        const popup = shadowRoot.getElementById("custom-popup-window");
+                        popup.style.display = "block";
+                        toggleButton.classList.add("red");
+                        saveChatState("open");
+                    }
+                });
             }
-        }); 
+        });
         
+
+        function linkify(text) {
+            // Regex simple pour capturer http/https ou "www." suivi de caractères non-espace
+            const urlRegex = /((https?:\/\/|www\.)[^\s]+)/g;
+            return text.replace(urlRegex, (match) => {
+                // Au cas où le lien ne commence pas par http
+                let url = match.startsWith('http') ? match : 'https://' + match;
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`;
+            });
+        }
+        
+                
+        
+        
+
         async function sendMessage() {
             const messageText = textarea.value.trim();
             if (!messageText) {
@@ -1348,8 +1570,8 @@ document.body.appendChild(script);
             placeholderBotMessageWrapper.className = "message bot-container";
             
             const botLogoPlaceholder = document.createElement("img");
-            botLogoPlaceholder.src = "https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_rentiteasy.png";
-            botLogoPlaceholder.alt = "Logo Rentiteasy";
+            botLogoPlaceholder.src = "https://pjbrx.github.io/Clea_agent_conversationnel/ExpansionTV/logo_ExpansionTV.png";
+            botLogoPlaceholder.alt = "Logo ExpansionTV";
             botLogoPlaceholder.className = "bot-logo";
             
             const placeholderBotMessageContainer = document.createElement("div");
@@ -1375,7 +1597,7 @@ document.body.appendChild(script);
             chatBody.appendChild(placeholderBotMessageWrapper);
             chatBody.scrollTop = chatBody.scrollHeight;
             saveChatScroll(chatBody.scrollTop);
-
+            
             // Après 2.5 secondes, si la réponse n'est toujours pas reçue, remplacer le texte par l'animation des 3 points
             let placeholderTimer = setTimeout(() => {
                 // Remplacer la classe pour activer l'animation des points
@@ -1430,8 +1652,8 @@ document.body.appendChild(script);
                 
                 // Logo du bot
                 const botLogo = document.createElement("img");
-                botLogo.src = "https://pjbrx.github.io/Clea_agent_conversationnel/Rentiteasy/logo_rentiteasy.png";
-                botLogo.alt = "Logo Rentiteasy";
+                botLogo.src = "https://pjbrx.github.io/Clea_agent_conversationnel/ExpansionTV/logo_ExpansionTV.png";
+                botLogo.alt = "Logo ExpansionTV";
                 botLogo.className = "bot-logo";
                 
                 // Bulle de message avec la réponse
@@ -1440,9 +1662,8 @@ document.body.appendChild(script);
                 const botMessageText = document.createElement("span");
                 botMessageText.textContent = "";
                 // Lancer l'animation avec le texte retourné par l'IA
-                const formatted = formatResponse(data[0]?.output || "Je n'ai pas compris.");
-                animateFormattedText(botMessageText, formatted, 5); // 5ms par caractère ≈ rapide, ajuste si besoin
-
+                animateText(botMessageText, data[0]?.output || "Je n'ai pas compris.", 10);
+                
                 botMessageContainer.appendChild(botMessageText);
                 botMessageWrapper.appendChild(botLogo);
                 botMessageWrapper.appendChild(botMessageContainer);
@@ -1461,14 +1682,13 @@ document.body.appendChild(script);
             }
         }
 
-
-        function animateFormattedText(targetElement, rawText, delay = 10) {
-            const formatted = formatResponse(rawText); // Format HTML avec <p>, <strong>, <a>, etc.
+        function animateText(element, rawText, interval = 10) {
+            const formatted = formatResponse(rawText);
         
             const tempDiv = document.createElement("div");
             tempDiv.innerHTML = formatted;
         
-            const blocks = Array.from(tempDiv.children); // Ex : <p>, <h2>, <ul>...
+            const blocks = Array.from(tempDiv.children); // blocs HTML (p, h1, ul…)
         
             let blockIndex = 0;
         
@@ -1478,9 +1698,8 @@ document.body.appendChild(script);
                 const block = blocks[blockIndex];
                 const targetBlock = document.createElement(block.tagName.toLowerCase());
                 targetBlock.style.cssText = block.style.cssText;
-                targetBlock.className = block.className; // si tu utilises des classes
         
-                targetElement.appendChild(targetBlock);
+                element.appendChild(targetBlock);
         
                 const content = block.innerHTML;
                 let charIndex = 0;
@@ -1489,14 +1708,14 @@ document.body.appendChild(script);
                 function typeChar() {
                     if (charIndex >= content.length) {
                         blockIndex++;
-                        setTimeout(typeBlock, 100); // Délai entre les blocs
+                        setTimeout(typeBlock, 200); // Petit délai entre blocs
                         return;
                     }
         
                     currentText += content[charIndex];
                     targetBlock.innerHTML = currentText;
                     charIndex++;
-                    setTimeout(typeChar, delay);
+                    setTimeout(typeChar, interval);
                 }
         
                 typeChar();
@@ -1504,8 +1723,11 @@ document.body.appendChild(script);
         
             typeBlock();
         }
-            
         
+
+        
+        
+
         sendButton.addEventListener("click", sendMessage);
         textarea.addEventListener("keydown", function(event) {
             if (event.key === "Enter" && !event.shiftKey) {
@@ -1537,9 +1759,7 @@ document.body.appendChild(script);
         });
 
         shadowRoot.getElementById("close-chatbot").addEventListener("click", function() {
-            // Masquer le popup
             shadowRoot.getElementById("custom-popup-window").style.display = "none";
-            // Mettre à jour l'état sauvegardé
             saveChatState("closed");
             if (userHasSentMessageThisSession()) {
                 showFeedbackWindow();
@@ -1547,7 +1767,7 @@ document.body.appendChild(script);
             // Rétablir l'état du bouton de chat
             const toggleButton = shadowRoot.getElementById("custom-popup-toggle");
             toggleButton.classList.remove("red");
-            // Optionnel : Modifier l'image du bouton si nécessaire
+            // Vous pouvez aussi modifier l'image si besoin, de la même manière que dans l'événement "click" du toggleButton
             const toggleIcon = shadowRoot.getElementById("toggle-icon");
             toggleIcon.src = "https://pjbrx.github.io/Clea_agent_conversationnel/logo_chat_final.webp";
         });
@@ -1564,6 +1784,7 @@ document.body.appendChild(script);
             window.setTimeout(checkDOMReady, 100);
         }
     }
+
     // Lancer la vérification
     checkDOMReady();
 })();
