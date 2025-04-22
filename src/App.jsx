@@ -4,7 +4,6 @@ import { assistants } from "./data";
 import AssistantWidget from "./components/AssistantWidget";
 import AboutPage from "./pages/AboutPage";
 import HomePage from "./pages/HomePage";
-import JeuScout from "./pages/JeuScout"
 import "./App.css";
 
 function App() {
@@ -20,7 +19,6 @@ function App() {
             <Link to="/about" className="nav-link">
               À propos
             </Link>
-            <Link to="/jeu" className="nav-link">Jeu Scout</Link>
           </nav>
         </header>
 
@@ -44,7 +42,6 @@ function App() {
               }
             />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/jeu" element={<JeuScout />} />
           </Routes>
         </main>
       </div>
